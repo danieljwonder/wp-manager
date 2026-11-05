@@ -1,0 +1,54 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"landingPage": "/wp-admin/tools.php?page=website-manager-hermes-connector",
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_ENVIRONMENT_TYPE": "local",
+				"WP_DEBUG": true,
+				"WP_DEBUG_LOG": true,
+				"WP_DEBUG_DISPLAY": false
+			}
+		},
+		{
+			"step": "setSiteOptions",
+			"options": {
+				"blogname": "WMHC E2E",
+				"permalink_structure": "/%postname%/"
+			}
+		},
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "url",
+				"url": "https://downloads.wordpress.org/plugin/classic-editor.1.6.3.zip"
+			},
+			"options": { "activate": true }
+		},
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "url",
+				"url": "https://downloads.wordpress.org/plugin/hello-dolly.1.6.zip"
+			},
+			"options": { "activate": false }
+		},
+		{
+			"step": "installTheme",
+			"themeData": {
+				"resource": "url",
+				"url": "https://downloads.wordpress.org/theme/twentytwentyfour.1.0.zip"
+			},
+			"options": { "activate": true }
+		},
+		{
+			"step": "activatePlugin",
+			"pluginPath": "website-manager-hermes-connector/website-manager-hermes-connector.php"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php\nrequire '/wordpress/wp-load.php';\n$user = get_user_by( 'login', 'admin' );\n$created = WP_Application_Passwords::create_new_application_password( $user->ID, array( 'name' => 'Hermes e2e harness' ) );\nif ( is_wp_error( $created ) ) {\n\tfile_put_contents( '/e2e-run/creds.error', $created->get_error_message() );\n\treturn;\n}\n$out = array(\n\t'url'          => untrailingslashit( home_url() ),\n\t'user'         => $user->user_login,\n\t'app_password' => $created[0],\n\t'admin_password' => 'password',\n\t'created_at'   => gmdate( 'c' ),\n);\nfile_put_contents( '/e2e-run/creds.json', json_encode( $out, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );\n"
+		}
+	]
+}

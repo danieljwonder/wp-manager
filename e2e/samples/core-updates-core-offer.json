@@ -1,0 +1,29 @@
+{
+  "http_status": 200,
+  "body": {
+    "core": [
+      {
+        "type": "core",
+        "name": "WordPress",
+        "current_version": "6.5.14",
+        "new_version": "7.1.4",
+        "locale": "en_US",
+        "is_major": true,
+        "requires_php": "7.4",
+        "requires_mysql": "5.5.5",
+        "compatible_php": true,
+        "allowed": false,
+        "auto_update_enabled": true,
+        "dismissed": false,
+        "package_available": true
+      }
+    ],
+    "counts": {
+      "core": 1,
+      "plugins": 1,
+      "themes": 0,
+      "translations": 0,
+      "total": 2
+    }
+  }
+}

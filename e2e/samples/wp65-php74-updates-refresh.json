@@ -1,0 +1,137 @@
+{
+  "http_status": 200,
+  "body": {
+    "refreshed": true,
+    "refresh_errors": [],
+    "last_checked": {
+      "core": "2026-11-05T23:09:44+00:00",
+      "plugins": "2026-11-05T23:09:44+00:00",
+      "themes": "2026-11-05T23:09:45+00:00"
+    },
+    "counts": {
+      "core": 1,
+      "plugins": 3,
+      "themes": 3,
+      "translations": 0,
+      "total": 7
+    },
+    "core": [
+      {
+        "type": "core",
+        "name": "WordPress",
+        "current_version": "6.5.14",
+        "new_version": "7.1.4",
+        "locale": "en_US",
+        "is_major": true,
+        "requires_php": "7.4",
+        "requires_mysql": "5.5.5",
+        "compatible_php": true,
+        "allowed": false,
+        "auto_update_enabled": true,
+        "dismissed": false,
+        "package_available": true
+      }
+    ],
+    "plugins": [
+      {
+        "type": "plugin",
+        "name": "Akismet Anti-spam: Spam Protection",
+        "file": "akismet/akismet.php",
+        "slug": "akismet",
+        "current_version": "5.3.2",
+        "new_version": "5.7.2",
+        "requires_wp": "5.8",
+        "requires_php": "7.2",
+        "tested_wp": "7.1.4",
+        "compatible_wp": true,
+        "compatible_php": true,
+        "active": false,
+        "network_active": false,
+        "auto_update_enabled": false,
+        "package_available": true
+      },
+      {
+        "type": "plugin",
+        "name": "Classic Editor",
+        "file": "classic-editor/classic-editor.php",
+        "slug": "classic-editor",
+        "current_version": "1.6.3",
+        "new_version": "1.7.0",
+        "requires_wp": "4.9",
+        "requires_php": "5.2.4",
+        "tested_wp": "7.0.8",
+        "compatible_wp": true,
+        "compatible_php": true,
+        "active": true,
+        "network_active": false,
+        "auto_update_enabled": false,
+        "package_available": true
+      },
+      {
+        "type": "plugin",
+        "name": "Hello Dolly",
+        "file": "hello-dolly/hello.php",
+        "slug": "hello-dolly",
+        "current_version": "1.6",
+        "new_version": "1.7.2",
+        "requires_wp": "4.6",
+        "requires_php": null,
+        "tested_wp": "6.9.11",
+        "compatible_wp": true,
+        "compatible_php": true,
+        "active": false,
+        "network_active": false,
+        "auto_update_enabled": false,
+        "package_available": true
+      }
+    ],
+    "themes": [
+      {
+        "type": "theme",
+        "name": "Twenty Twenty-Four",
+        "stylesheet": "twentytwentyfour",
+        "slug": "twentytwentyfour",
+        "current_version": "1.0",
+        "new_version": "1.6",
+        "requires_wp": "6.4",
+        "requires_php": "7.0",
+        "compatible_wp": true,
+        "compatible_php": true,
+        "active": true,
+        "auto_update_enabled": false,
+        "package_available": true
+      },
+      {
+        "type": "theme",
+        "name": "Twenty Twenty-Three",
+        "stylesheet": "twentytwentythree",
+        "slug": "twentytwentythree",
+        "current_version": "1.4",
+        "new_version": "1.7",
+        "requires_wp": "6.1",
+        "requires_php": "5.6",
+        "compatible_wp": true,
+        "compatible_php": true,
+        "active": false,
+        "auto_update_enabled": false,
+        "package_available": true
+      },
+      {
+        "type": "theme",
+        "name": "Twenty Twenty-Two",
+        "stylesheet": "twentytwentytwo",
+        "slug": "twentytwentytwo",
+        "current_version": "1.7",
+        "new_version": "2.2",
+        "requires_wp": "5.9",
+        "requires_php": "5.6",
+        "compatible_wp": true,
+        "compatible_php": true,
+        "active": false,
+        "auto_update_enabled": false,
+        "package_available": true
+      }
+    ],
+    "translations": []
+  }
+}

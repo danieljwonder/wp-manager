@@ -1,0 +1,58 @@
+{
+  "http_status": 200,
+  "body": {
+    "connector_version": "0.1.0",
+    "wp_version": "7.1.4",
+    "php_version": "8.3.36",
+    "multisite": false,
+    "site_url": "http://127.0.0.1:9400",
+    "home_url": "http://127.0.0.1:9400",
+    "rest_url": "http://127.0.0.1:9400/wp-json/",
+    "site_name": "WMHC E2E",
+    "environment_type": "local",
+    "debug": {
+      "wp_debug": true,
+      "wp_debug_log": true,
+      "wp_debug_display": false,
+      "script_debug": false
+    },
+    "active_theme": {
+      "name": "Twenty Twenty-Four",
+      "stylesheet": "twentytwentyfour",
+      "template": "twentytwentyfour",
+      "version": "1.0"
+    },
+    "updates": {
+      "core": 0,
+      "plugins": 0,
+      "themes": 0,
+      "translations": 0,
+      "total": 0
+    },
+    "last_checked": {
+      "core": null,
+      "plugins": null,
+      "themes": null
+    },
+    "file_mods_allowed": true,
+    "filesystem_method": "direct",
+    "abilities_api": true,
+    "application_passwords": true,
+    "settings": {
+      "allow_core_updates": true,
+      "allow_major_core_updates": false
+    },
+    "user": {
+      "id": 1,
+      "login": "admin",
+      "capabilities": {
+        "update_plugins": true,
+        "update_themes": true,
+        "update_core": true,
+        "update_languages": true,
+        "manage_options": true
+      }
+    },
+    "generated_at": "2026-11-05T23:17:11+00:00"
+  }
+}

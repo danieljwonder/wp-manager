@@ -1,0 +1,20 @@
+{
+  "http_status": 400,
+  "body": {
+    "code": "rest_invalid_param",
+    "message": "Invalid parameter(s): type",
+    "data": {
+      "status": 400,
+      "params": {
+        "type": "type is not one of plugin, theme, core, and translations."
+      },
+      "details": {
+        "type": {
+          "code": "rest_not_in_enum",
+          "message": "type is not one of plugin, theme, core, and translations.",
+          "data": null
+        }
+      }
+    }
+  }
+}

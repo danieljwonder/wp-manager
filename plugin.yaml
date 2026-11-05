@@ -1,0 +1,49 @@
+name: wp-manager
+version: 0.1.0
+manifest_version: 2
+api_version: 1
+description: >-
+  Manage a fleet of WordPress sites from Hermes: scan for plugin, theme, core
+  and translation updates, apply them behind an approval prompt with an
+  automatic health check afterwards, and create or edit posts and pages from
+  chat. Includes a Hermes Desktop page and pairs with the "Website Manager: WP
+  Connector for Hermes" WordPress plugin. Uses WordPress Application Passwords
+  kept in Hermes secrets. Takes no backups.
+author: Daniel Wonder
+license: MIT
+homepage: https://github.com/danieljwonder/wp-manager
+tags: [wordpress, website, cms, updates, maintenance, infinitewp, mainwp, content, desktop]
+requires_hermes: ">=0.22.5"
+provides_tools:
+  - wp_sites
+  - wp_site_add
+  - wp_site_remove
+  - wp_updates_scan
+  - wp_update_apply
+  - wp_health_check
+  - wp_content_list
+  - wp_content_get
+  - wp_content_save
+provides_hooks:
+  - pre_tool_call
+config_schema:
+  require_approval:
+    type: bool
+    default: true
+    label: "Require approval"
+    description: "Ask before installing updates, publishing, or editing published posts and pages. Unattended runs (cron) are refused while this is on."
+  op_binary:
+    type: str
+    default: "op"
+    label: "1Password CLI"
+    description: "Program used for credentials given as op://Vault/Item/field references. Not needed when passwords are Hermes secrets."
+  request_timeout:
+    type: int
+    default: 60
+    label: "Request timeout (seconds)"
+    description: "Timeout for normal requests to your sites. Update runs use at least 300 seconds."
+  max_parallel:
+    type: int
+    default: 4
+    label: "Parallel scans"
+    description: "How many sites are scanned at the same time."

@@ -1,0 +1,174 @@
+{
+  "http_status": 200,
+  "body": [
+    {
+      "name": "website-manager-hermes/get-status",
+      "label": "Get site status",
+      "description": "Returns connector, WordPress and PHP versions, environment, active theme and pending update counts.",
+      "category": "website-manager-hermes",
+      "input_schema": [],
+      "output_schema": {
+        "type": "object"
+      },
+      "meta": {
+        "annotations": {
+          "readonly": true,
+          "destructive": false,
+          "idempotent": true
+        },
+        "show_in_rest": true,
+        "public": true,
+        "mcp": {
+          "public": true
+        }
+      },
+      "_links": {
+        "self": [
+          {
+            "href": "http://127.0.0.1:9400/wp-json/wp-abilities/v1/abilities/website-manager-hermes/get-status",
+            "targetHints": {
+              "allow": [
+                "GET"
+              ]
+            }
+          }
+        ],
+        "collection": [
+          {
+            "href": "http://127.0.0.1:9400/wp-json/wp-abilities/v1/abilities"
+          }
+        ],
+        "wp:action-run": [
+          {
+            "href": "http://127.0.0.1:9400/wp-json/wp-abilities/v1/abilities/website-manager-hermes/get-status/run"
+          }
+        ]
+      }
+    },
+    {
+      "name": "website-manager-hermes/list-updates",
+      "label": "List available updates",
+      "description": "Lists available core, plugin, theme and translation updates. Set refresh to true to check WordPress.org first.",
+      "category": "website-manager-hermes",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "refresh": {
+            "type": "boolean",
+            "description": "Force a fresh update check.",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "default": {
+          "refresh": false
+        }
+      },
+      "output_schema": {
+        "type": "object"
+      },
+      "meta": {
+        "annotations": {
+          "readonly": true,
+          "destructive": false,
+          "idempotent": true
+        },
+        "show_in_rest": true,
+        "public": true,
+        "mcp": {
+          "public": true
+        }
+      },
+      "_links": {
+        "self": [
+          {
+            "href": "http://127.0.0.1:9400/wp-json/wp-abilities/v1/abilities/website-manager-hermes/list-updates",
+            "targetHints": {
+              "allow": [
+                "GET"
+              ]
+            }
+          }
+        ],
+        "collection": [
+          {
+            "href": "http://127.0.0.1:9400/wp-json/wp-abilities/v1/abilities"
+          }
+        ],
+        "wp:action-run": [
+          {
+            "href": "http://127.0.0.1:9400/wp-json/wp-abilities/v1/abilities/website-manager-hermes/list-updates/run"
+          }
+        ]
+      }
+    },
+    {
+      "name": "website-manager-hermes/run-updates",
+      "label": "Run updates",
+      "description": "Updates plugins, themes, WordPress core or translations using the core upgraders. Items empty means all of that type. Take a backup first.",
+      "category": "website-manager-hermes",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "plugin",
+              "theme",
+              "core",
+              "translations"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object"
+      },
+      "meta": {
+        "annotations": {
+          "readonly": false,
+          "destructive": true,
+          "idempotent": false
+        },
+        "show_in_rest": true,
+        "public": true,
+        "mcp": {
+          "public": true
+        }
+      },
+      "_links": {
+        "self": [
+          {
+            "href": "http://127.0.0.1:9400/wp-json/wp-abilities/v1/abilities/website-manager-hermes/run-updates",
+            "targetHints": {
+              "allow": [
+                "GET"
+              ]
+            }
+          }
+        ],
+        "collection": [
+          {
+            "href": "http://127.0.0.1:9400/wp-json/wp-abilities/v1/abilities"
+          }
+        ],
+        "wp:action-run": [
+          {
+            "href": "http://127.0.0.1:9400/wp-json/wp-abilities/v1/abilities/website-manager-hermes/run-updates/run"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "http_status": 200,
+  "body": {
+    "type": "core",
+    "success": true,
+    "result": "success",
+    "started_at": "2026-11-05T23:11:06+00:00",
+    "duration_ms": 22479,
+    "results": [
+      {
+        "item": "core",
+        "name": "WordPress",
+        "from_version": "6.5.14",
+        "to_version": "7.1.4",
+        "success": true,
+        "status": "updated",
+        "error": null,
+        "db_upgrade_required": false,
+        "messages": [
+          "Downloading update from https://downloads.wordpress.org/release/wordpress-7.1.4-new-bundled.zip…",
+          "Unpacking the update…"
+        ]
+      }
+    ],
+    "errors": [],
+    "messages": [],
+    "output": "",
+    "maintenance_off": true
+  }
+}

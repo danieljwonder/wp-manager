@@ -1,0 +1,31 @@
+{
+  "http_status": 200,
+  "body": {
+    "status": "ok",
+    "ok": true,
+    "problems": [],
+    "warnings": [],
+    "recovery_mode": false,
+    "maintenance_mode": false,
+    "last_error": null,
+    "database": {
+      "reachable": true,
+      "error": null
+    },
+    "cron": {
+      "disabled": false,
+      "alternate": false,
+      "scheduled_events": 12,
+      "overdue_events": 0,
+      "overdue_threshold_s": 3600,
+      "oldest_overdue_at": null,
+      "next_event_at": "2026-11-05T23:11:54+00:00",
+      "doing_cron": false
+    },
+    "paused_plugins": [],
+    "paused_themes": [],
+    "wp_version": "7.1.4",
+    "connector_version": "0.1.0",
+    "checked_at": "2026-11-05T23:11:42+00:00"
+  }
+}

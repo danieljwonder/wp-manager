@@ -1,0 +1,29 @@
+{
+  "http_status": 200,
+  "body": {
+    "type": "core",
+    "success": true,
+    "result": "success",
+    "started_at": "2026-11-05T23:10:38+00:00",
+    "duration_ms": 10,
+    "results": [
+      {
+        "item": "core",
+        "name": "WordPress",
+        "from_version": "6.5.14",
+        "to_version": "6.5.14",
+        "success": true,
+        "status": "skipped",
+        "error": null,
+        "db_upgrade_required": false,
+        "messages": [
+          "Major WordPress update available (7.1.4) but major core updates are disabled in Tools → Hermes Connector."
+        ]
+      }
+    ],
+    "errors": [],
+    "messages": [],
+    "output": "",
+    "maintenance_off": true
+  }
+}

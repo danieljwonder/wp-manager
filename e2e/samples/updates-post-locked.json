@@ -1,0 +1,10 @@
+{
+  "http_status": 409,
+  "body": {
+    "code": "wmhc_locked",
+    "message": "Another update run is in progress. Try again in a few minutes.",
+    "data": {
+      "status": 409
+    }
+  }
+}

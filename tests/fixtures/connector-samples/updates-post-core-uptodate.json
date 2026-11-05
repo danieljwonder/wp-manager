@@ -1,0 +1,27 @@
+{
+  "http_status": 200,
+  "body": {
+    "type": "core",
+    "success": true,
+    "result": "success",
+    "started_at": "2026-11-05T22:55:05+00:00",
+    "duration_ms": 7,
+    "results": [
+      {
+        "item": "core",
+        "name": "WordPress",
+        "from_version": "7.1.4",
+        "to_version": "7.1.4",
+        "success": true,
+        "status": "up_to_date",
+        "error": null,
+        "db_upgrade_required": false,
+        "messages": []
+      }
+    ],
+    "errors": [],
+    "messages": [],
+    "output": "",
+    "maintenance_off": true
+  }
+}

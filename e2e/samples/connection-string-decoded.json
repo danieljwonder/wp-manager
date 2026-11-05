@@ -1,0 +1,10 @@
+{
+  "prefix": "wpmh1:",
+  "decoded": {
+    "v": 1,
+    "url": "http://127.0.0.1:9400",
+    "user": "admin",
+    "app_password": "[REDACTED]",
+    "rest_url": "http://127.0.0.1:9400/wp-json/"
+  }
+}

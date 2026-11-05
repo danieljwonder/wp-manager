@@ -1,0 +1,25 @@
+{
+  "http_status": 200,
+  "note": "GET /updates on a de_DE site before the run; plugins/themes trimmed",
+  "body": {
+    "counts": {
+      "core": 0,
+      "plugins": 2,
+      "themes": 1,
+      "translations": 1,
+      "total": 4
+    },
+    "translations": [
+      {
+        "type": "translation",
+        "item": "plugin:hello-dolly:de_DE",
+        "translation_type": "plugin",
+        "slug": "hello-dolly",
+        "language": "de_DE",
+        "version": "1.7.2",
+        "updated": "2026-03-17 21:06:31",
+        "auto_update_enabled": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "http_status": 200,
+  "body": {
+    "refreshed": true,
+    "refresh_errors": [],
+    "last_checked": {
+      "core": "2026-11-05T22:54:24+00:00",
+      "plugins": "2026-11-05T22:54:25+00:00",
+      "themes": "2026-11-05T22:54:26+00:00"
+    },
+    "counts": {
+      "core": 0,
+      "plugins": 2,
+      "themes": 1,
+      "translations": 0,
+      "total": 3
+    },
+    "core": [],
+    "plugins": [
+      {
+        "type": "plugin",
+        "name": "Classic Editor",
+        "file": "classic-editor/classic-editor.php",
+        "slug": "classic-editor",
+        "current_version": "1.6.3",
+        "new_version": "1.7.0",
+        "requires_wp": "4.9",
+        "requires_php": "5.2.4",
+        "tested_wp": "7.0.8",
+        "compatible_wp": true,
+        "compatible_php": true,
+        "active": true,
+        "network_active": false,
+        "auto_update_enabled": false,
+        "package_available": true
+      },
+      {
+        "type": "plugin",
+        "name": "Hello Dolly",
+        "file": "hello-dolly/hello.php",
+        "slug": "hello-dolly",
+        "current_version": "1.6",
+        "new_version": "1.7.2",
+        "requires_wp": "4.6",
+        "requires_php": null,
+        "tested_wp": "6.9.11",
+        "compatible_wp": true,
+        "compatible_php": true,
+        "active": false,
+        "network_active": false,
+        "auto_update_enabled": false,
+        "package_available": true
+      }
+    ],
+    "themes": [
+      {
+        "type": "theme",
+        "name": "Twenty Twenty-Four",
+        "stylesheet": "twentytwentyfour",
+        "slug": "twentytwentyfour",
+        "current_version": "1.0",
+        "new_version": "1.6",
+        "requires_wp": "6.4",
+        "requires_php": "7.0",
+        "compatible_wp": true,
+        "compatible_php": true,
+        "active": true,
+        "auto_update_enabled": false,
+        "package_available": true
+      }
+    ],
+    "translations": []
+  }
+}

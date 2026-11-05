@@ -1,0 +1,10 @@
+{
+  "http_status": 404,
+  "body": {
+    "code": "wmhc_no_core_update",
+    "message": "That WordPress version is not offered as an update.",
+    "data": {
+      "status": 404
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "http_status": 200,
+  "body": {
+    "refreshed": false,
+    "refresh_errors": [],
+    "last_checked": {
+      "core": "2026-11-05T23:17:13+00:00",
+      "plugins": "2026-11-05T23:17:40+00:00",
+      "themes": "2026-11-05T23:17:41+00:00"
+    },
+    "counts": {
+      "core": 0,
+      "plugins": 0,
+      "themes": 0,
+      "translations": 0,
+      "total": 0
+    },
+    "core": [],
+    "plugins": [],
+    "themes": [],
+    "translations": []
+  }
+}

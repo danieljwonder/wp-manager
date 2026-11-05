@@ -1,0 +1,40 @@
+{
+  "http_status": 200,
+  "request": {
+    "type": "translations",
+    "items": [
+      "plugin:hello-dolly:de_DE"
+    ]
+  },
+  "body": {
+    "type": "translations",
+    "success": true,
+    "result": "success",
+    "started_at": "2026-11-05T23:02:43+00:00",
+    "duration_ms": 1012,
+    "results": [
+      {
+        "item": "plugin:hello-dolly:de_DE",
+        "name": "hello-dolly",
+        "from_version": null,
+        "to_version": "1.7.2",
+        "success": true,
+        "status": "updated",
+        "error": null,
+        "language": "de_DE",
+        "updated": "2026-03-17 21:06:31",
+        "messages": [
+          "Herunterladen der Übersetzung von https://downloads.wordpress.org/translation/plugin/hello-dolly/1.7.2/de_DE.zip …",
+          "Entpacken der aktualisierten Version …",
+          "Die neueste Version wird installiert …",
+          "Alte Übersetzung wird entfernt …",
+          "Die Übersetzung wurde erfolgreich aktualisiert."
+        ]
+      }
+    ],
+    "errors": [],
+    "messages": [],
+    "output": "",
+    "maintenance_off": true
+  }
+}

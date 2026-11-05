@@ -1,0 +1,78 @@
+{
+  "http_status": 200,
+  "request": {
+    "type": "plugin",
+    "items": [
+      "classic-editor/classic-editor.php",
+      "hello-dolly/hello.php",
+      "not-installed/nope.php"
+    ]
+  },
+  "body": {
+    "type": "plugin",
+    "success": false,
+    "result": "partial",
+    "started_at": "2026-11-05T22:54:27+00:00",
+    "duration_ms": 5040,
+    "results": [
+      {
+        "item": "classic-editor/classic-editor.php",
+        "name": "Classic Editor",
+        "from_version": "1.6.3",
+        "to_version": "1.7.0",
+        "success": true,
+        "status": "updated",
+        "error": null,
+        "active_before": true,
+        "active_after": true,
+        "reactivated": null,
+        "messages": [
+          "Downloading update from https://downloads.wordpress.org/plugin/classic-editor.1.7.0.zip…",
+          "Unpacking the update…",
+          "Installing the latest version…",
+          "Removing the old version of the plugin…",
+          "Plugin updated successfully."
+        ]
+      },
+      {
+        "item": "hello-dolly/hello.php",
+        "name": "Hello Dolly",
+        "from_version": "1.6",
+        "to_version": "1.7.2",
+        "success": true,
+        "status": "updated",
+        "error": null,
+        "active_before": false,
+        "active_after": false,
+        "reactivated": null,
+        "messages": [
+          "Downloading update from https://downloads.wordpress.org/plugin/hello-dolly.1.7.2.zip…",
+          "Unpacking the update…",
+          "Installing the latest version…",
+          "Removing the old version of the plugin…",
+          "Plugin updated successfully."
+        ]
+      },
+      {
+        "item": "not-installed/nope.php",
+        "name": null,
+        "from_version": null,
+        "to_version": null,
+        "success": false,
+        "status": "not_installed",
+        "error": "Plugin is not installed.",
+        "active_before": null,
+        "active_after": null,
+        "reactivated": null,
+        "messages": []
+      }
+    ],
+    "errors": [],
+    "messages": [
+      "Enabling Maintenance mode…",
+      "Disabling Maintenance mode…"
+    ],
+    "output": "",
+    "maintenance_off": true
+  }
+}

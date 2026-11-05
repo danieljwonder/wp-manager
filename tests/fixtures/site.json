@@ -1,0 +1,791 @@
+{
+ "meta": {
+  "base_url": "https://wp.example.test",
+  "note": "Hand-written to match the connector's documented/implemented response shapes (connector/website-manager-hermes-connector/includes/class-service.php). Replace or extend with real recordings via scripts/record_fixtures.py.",
+  "source": "synthetic",
+  "username": "admin"
+ },
+ "responses": {
+  "GET /": [
+   {
+    "body": "<!doctype html><html><head><title>Example Test Site</title></head><body class=\"home\"><h1>Example Test Site</h1><p>Just another WordPress site</p></body></html>",
+    "headers": {
+     "content-type": "text/html; charset=UTF-8"
+    },
+    "status": 200
+   }
+  ],
+  "GET /wp-json/": [
+   {
+    "body": {
+     "description": "",
+     "home": "https://wp.example.test",
+     "name": "Example Test Site",
+     "namespaces": [
+      "oembed/1.0",
+      "website-manager-hermes/v1",
+      "wp/v2"
+     ],
+     "routes": {},
+     "url": "https://wp.example.test"
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 200
+   }
+  ],
+  "GET /wp-json/website-manager-hermes/v1/health": [
+   {
+    "body": {
+     "checked_at": "2026-11-05T09:06:00+00:00",
+     "connector_version": "0.1.0",
+     "cron": {
+      "alternate": false,
+      "disabled": false,
+      "doing_cron": false,
+      "next_event_at": "2026-11-05T09:30:00+00:00",
+      "oldest_overdue_at": null,
+      "overdue_events": 0,
+      "overdue_threshold_s": 3600,
+      "scheduled_events": 12
+     },
+     "database": {
+      "error": null,
+      "reachable": true
+     },
+     "last_error": null,
+     "maintenance_mode": false,
+     "ok": true,
+     "paused_plugins": [],
+     "paused_themes": [],
+     "problems": [],
+     "recovery_mode": false,
+     "status": "ok",
+     "warnings": [],
+     "wp_version": "6.8.1"
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 200
+   }
+  ],
+  "GET /wp-json/website-manager-hermes/v1/status": [
+   {
+    "body": {
+     "abilities_api": false,
+     "active_theme": {
+      "name": "Twenty Twenty-Four",
+      "stylesheet": "twentytwentyfour",
+      "template": "twentytwentyfour",
+      "version": "1.1"
+     },
+     "application_passwords": true,
+     "connector_version": "0.1.0",
+     "debug": {
+      "script_debug": false,
+      "wp_debug": false,
+      "wp_debug_display": false,
+      "wp_debug_log": false
+     },
+     "environment_type": "production",
+     "file_mods_allowed": true,
+     "filesystem_method": "direct",
+     "generated_at": "2026-11-05T09:01:00+00:00",
+     "home_url": "https://wp.example.test",
+     "last_checked": {
+      "core": "2026-11-05T09:00:00+00:00",
+      "plugins": "2026-11-05T09:00:00+00:00",
+      "themes": "2026-11-05T09:00:00+00:00"
+     },
+     "multisite": false,
+     "php_version": "8.2.20",
+     "rest_url": "https://wp.example.test/wp-json/",
+     "settings": {
+      "allow_core_updates": true,
+      "allow_major_core_updates": false
+     },
+     "site_name": "Example Test Site",
+     "site_url": "https://wp.example.test",
+     "updates": {
+      "core": 1,
+      "plugins": 2,
+      "themes": 1,
+      "total": 5,
+      "translations": 1
+     },
+     "user": {
+      "capabilities": {
+       "manage_options": true,
+       "update_core": true,
+       "update_languages": true,
+       "update_plugins": true,
+       "update_themes": true
+      },
+      "id": 1,
+      "login": "admin"
+     },
+     "wp_version": "6.8.1"
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 200
+   }
+  ],
+  "GET /wp-json/website-manager-hermes/v1/updates": [
+   {
+    "body": {
+     "core": [
+      {
+       "allowed": true,
+       "auto_update_enabled": true,
+       "compatible_php": true,
+       "current_version": "6.8.1",
+       "dismissed": false,
+       "is_major": false,
+       "locale": "en_US",
+       "name": "WordPress",
+       "new_version": "6.8.3",
+       "package_available": true,
+       "requires_mysql": "5.5.5",
+       "requires_php": "7.2.24",
+       "type": "core"
+      }
+     ],
+     "counts": {
+      "core": 1,
+      "plugins": 2,
+      "themes": 1,
+      "total": 5,
+      "translations": 1
+     },
+     "last_checked": {
+      "core": "2026-11-05T09:00:00+00:00",
+      "plugins": "2026-11-05T09:00:00+00:00",
+      "themes": "2026-11-05T09:00:00+00:00"
+     },
+     "plugins": [
+      {
+       "active": true,
+       "auto_update_enabled": false,
+       "compatible_php": true,
+       "compatible_wp": true,
+       "current_version": "1.6",
+       "file": "hello-dolly/hello.php",
+       "name": "Hello Dolly",
+       "network_active": false,
+       "new_version": "1.7.2",
+       "package_available": true,
+       "requires_php": null,
+       "requires_wp": "4.6",
+       "slug": "hello-dolly",
+       "tested_wp": "6.8",
+       "type": "plugin"
+      },
+      {
+       "active": false,
+       "auto_update_enabled": false,
+       "compatible_php": true,
+       "compatible_wp": true,
+       "current_version": "1.6.3",
+       "file": "classic-editor/classic-editor.php",
+       "name": "Classic Editor",
+       "network_active": false,
+       "new_version": "1.6.7",
+       "package_available": true,
+       "requires_php": "5.2.4",
+       "requires_wp": "4.9",
+       "slug": "classic-editor",
+       "tested_wp": "6.8",
+       "type": "plugin"
+      }
+     ],
+     "refresh_errors": [],
+     "refreshed": false,
+     "themes": [
+      {
+       "active": false,
+       "auto_update_enabled": false,
+       "compatible_php": true,
+       "compatible_wp": true,
+       "current_version": "1.8",
+       "name": "Twenty Twenty-One",
+       "new_version": "2.5",
+       "package_available": true,
+       "requires_php": "5.6",
+       "requires_wp": "5.3",
+       "slug": "twentytwentyone",
+       "stylesheet": "twentytwentyone",
+       "type": "theme"
+      }
+     ],
+     "translations": [
+      {
+       "auto_update_enabled": true,
+       "item": "plugin:hello-dolly:de_DE",
+       "language": "de_DE",
+       "slug": "hello-dolly",
+       "translation_type": "plugin",
+       "type": "translation",
+       "updated": "2026-10-01 10:00:00",
+       "version": "1.7.2"
+      }
+     ]
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 200
+   }
+  ],
+  "GET /wp-json/website-manager-hermes/v1/updates?refresh=1": [
+   {
+    "body": {
+     "core": [
+      {
+       "allowed": true,
+       "auto_update_enabled": true,
+       "compatible_php": true,
+       "current_version": "6.8.1",
+       "dismissed": false,
+       "is_major": false,
+       "locale": "en_US",
+       "name": "WordPress",
+       "new_version": "6.8.3",
+       "package_available": true,
+       "requires_mysql": "5.5.5",
+       "requires_php": "7.2.24",
+       "type": "core"
+      }
+     ],
+     "counts": {
+      "core": 1,
+      "plugins": 2,
+      "themes": 1,
+      "total": 5,
+      "translations": 1
+     },
+     "last_checked": {
+      "core": "2026-11-05T09:00:00+00:00",
+      "plugins": "2026-11-05T09:00:00+00:00",
+      "themes": "2026-11-05T09:00:00+00:00"
+     },
+     "plugins": [
+      {
+       "active": true,
+       "auto_update_enabled": false,
+       "compatible_php": true,
+       "compatible_wp": true,
+       "current_version": "1.6",
+       "file": "hello-dolly/hello.php",
+       "name": "Hello Dolly",
+       "network_active": false,
+       "new_version": "1.7.2",
+       "package_available": true,
+       "requires_php": null,
+       "requires_wp": "4.6",
+       "slug": "hello-dolly",
+       "tested_wp": "6.8",
+       "type": "plugin"
+      },
+      {
+       "active": false,
+       "auto_update_enabled": false,
+       "compatible_php": true,
+       "compatible_wp": true,
+       "current_version": "1.6.3",
+       "file": "classic-editor/classic-editor.php",
+       "name": "Classic Editor",
+       "network_active": false,
+       "new_version": "1.6.7",
+       "package_available": true,
+       "requires_php": "5.2.4",
+       "requires_wp": "4.9",
+       "slug": "classic-editor",
+       "tested_wp": "6.8",
+       "type": "plugin"
+      }
+     ],
+     "refresh_errors": [],
+     "refreshed": true,
+     "themes": [
+      {
+       "active": false,
+       "auto_update_enabled": false,
+       "compatible_php": true,
+       "compatible_wp": true,
+       "current_version": "1.8",
+       "name": "Twenty Twenty-One",
+       "new_version": "2.5",
+       "package_available": true,
+       "requires_php": "5.6",
+       "requires_wp": "5.3",
+       "slug": "twentytwentyone",
+       "stylesheet": "twentytwentyone",
+       "type": "theme"
+      }
+     ],
+     "translations": [
+      {
+       "auto_update_enabled": true,
+       "item": "plugin:hello-dolly:de_DE",
+       "language": "de_DE",
+       "slug": "hello-dolly",
+       "translation_type": "plugin",
+       "type": "translation",
+       "updated": "2026-10-01 10:00:00",
+       "version": "1.7.2"
+      }
+     ]
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 200
+   }
+  ],
+  "GET /wp-json/wp/v2/pages/7": [
+   {
+    "body": {
+     "content": {
+      "raw": "",
+      "rendered": "<div data-elementor-type=\"wp-page\" class=\"elementor elementor-7\"></div>"
+     },
+     "date": "2026-10-01T10:00:00",
+     "excerpt": {
+      "raw": "",
+      "rendered": ""
+     },
+     "id": 7,
+     "link": "https://wp.example.test/",
+     "modified": "2026-10-02T10:00:00",
+     "slug": "home",
+     "status": "publish",
+     "template": "elementor_header_footer",
+     "title": {
+      "raw": "Home",
+      "rendered": "Home"
+     },
+     "type": "page"
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 200
+   }
+  ],
+  "GET /wp-json/wp/v2/posts": [
+   {
+    "body": [
+     {
+      "content": {
+       "block_version": 1,
+       "protected": false,
+       "raw": "<!-- wp:paragraph -->\n<p>Welcome to WordPress.</p>\n<!-- /wp:paragraph -->",
+       "rendered": "<p>Welcome to WordPress.</p>\n"
+      },
+      "date": "2026-11-01T10:00:00",
+      "excerpt": {
+       "protected": false,
+       "raw": "",
+       "rendered": "<p>Welcome to WordPress.</p>\n"
+      },
+      "id": 12,
+      "link": "https://wp.example.test/hello-world/",
+      "modified": "2026-11-02T11:00:00",
+      "slug": "hello-world",
+      "status": "publish",
+      "title": {
+       "raw": "Hello world!",
+       "rendered": "Hello world!"
+      },
+      "type": "post"
+     },
+     {
+      "content": {
+       "block_version": 1,
+       "protected": false,
+       "raw": "<!-- wp:paragraph -->\n<p>Welcome to WordPress.</p>\n<!-- /wp:paragraph -->",
+       "rendered": "<p>Welcome to WordPress.</p>\n"
+      },
+      "date": "2026-11-01T10:00:00",
+      "excerpt": {
+       "protected": false,
+       "raw": "",
+       "rendered": "<p>Welcome to WordPress.</p>\n"
+      },
+      "id": 15,
+      "link": "https://wp.example.test/?p=15",
+      "modified": "2026-11-02T11:00:00",
+      "slug": "",
+      "status": "draft",
+      "title": {
+       "raw": "Draft idea",
+       "rendered": "Draft idea"
+      },
+      "type": "post"
+     }
+    ],
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 200
+   }
+  ],
+  "GET /wp-json/wp/v2/posts/12": [
+   {
+    "body": {
+     "content": {
+      "block_version": 1,
+      "protected": false,
+      "raw": "<!-- wp:paragraph -->\n<p>Welcome to WordPress.</p>\n<!-- /wp:paragraph -->",
+      "rendered": "<p>Welcome to WordPress.</p>\n"
+     },
+     "date": "2026-11-01T10:00:00",
+     "excerpt": {
+      "protected": false,
+      "raw": "",
+      "rendered": "<p>Welcome to WordPress.</p>\n"
+     },
+     "id": 12,
+     "link": "https://wp.example.test/hello-world/",
+     "modified": "2026-11-02T11:00:00",
+     "slug": "hello-world",
+     "status": "publish",
+     "title": {
+      "raw": "Hello world!",
+      "rendered": "Hello world!"
+     },
+     "type": "post"
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 200
+   }
+  ],
+  "GET /wp-json/wp/v2/posts/15": [
+   {
+    "body": {
+     "content": {
+      "block_version": 1,
+      "protected": false,
+      "raw": "<!-- wp:paragraph -->\n<p>Welcome to WordPress.</p>\n<!-- /wp:paragraph -->",
+      "rendered": "<p>Welcome to WordPress.</p>\n"
+     },
+     "date": "2026-11-01T10:00:00",
+     "excerpt": {
+      "protected": false,
+      "raw": "",
+      "rendered": "<p>Welcome to WordPress.</p>\n"
+     },
+     "id": 15,
+     "link": "https://wp.example.test/?p=15",
+     "modified": "2026-11-02T11:00:00",
+     "slug": "",
+     "status": "draft",
+     "title": {
+      "raw": "Draft idea",
+      "rendered": "Draft idea"
+     },
+     "type": "post"
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 200
+   }
+  ],
+  "GET /wp-json/wp/v2/posts/999": [
+   {
+    "body": {
+     "code": "rest_post_invalid_id",
+     "data": {
+      "status": 404
+     },
+     "message": "Invalid post ID."
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 404
+   }
+  ],
+  "POST /wp-json/website-manager-hermes/v1/updates": [
+   {
+    "body": {
+     "duration_ms": 4210,
+     "errors": [],
+     "maintenance_off": true,
+     "messages": [],
+     "output": "Updating Plugin Hello Dolly (1/1)\nPlugin updated successfully.",
+     "result": "success",
+     "results": [
+      {
+       "active_after": true,
+       "active_before": true,
+       "error": null,
+       "from_version": "1.6",
+       "item": "hello-dolly/hello.php",
+       "messages": [
+        "Plugin updated successfully."
+       ],
+       "name": "Hello Dolly",
+       "reactivated": false,
+       "status": "updated",
+       "success": true,
+       "to_version": "1.7.2"
+      }
+     ],
+     "started_at": "2026-11-05T09:05:00+00:00",
+     "success": true,
+     "type": "plugin"
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 200
+   }
+  ],
+  "POST /wp-json/wp/v2/pages/7": [
+   {
+    "body": {
+     "content": {
+      "raw": "",
+      "rendered": "<div data-elementor-type=\"wp-page\" class=\"elementor elementor-7\"></div>"
+     },
+     "date": "2026-10-01T10:00:00",
+     "excerpt": {
+      "raw": "",
+      "rendered": ""
+     },
+     "id": 7,
+     "link": "https://wp.example.test/",
+     "modified": "2026-10-02T10:00:00",
+     "slug": "home",
+     "status": "publish",
+     "template": "elementor_header_footer",
+     "title": {
+      "raw": "Home",
+      "rendered": "Home"
+     },
+     "type": "page"
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 200
+   }
+  ],
+  "POST /wp-json/wp/v2/posts": [
+   {
+    "body": {
+     "content": {
+      "block_version": 1,
+      "protected": false,
+      "raw": "<!-- wp:paragraph -->\n<p>Welcome to WordPress.</p>\n<!-- /wp:paragraph -->",
+      "rendered": "<p>Welcome to WordPress.</p>\n"
+     },
+     "date": "2026-11-01T10:00:00",
+     "excerpt": {
+      "protected": false,
+      "raw": "",
+      "rendered": "<p>Welcome to WordPress.</p>\n"
+     },
+     "id": 21,
+     "link": "https://wp.example.test/?p=21",
+     "modified": "2026-11-02T11:00:00",
+     "slug": "",
+     "status": "draft",
+     "title": {
+      "raw": "New post",
+      "rendered": "New post"
+     },
+     "type": "post"
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 201
+   }
+  ],
+  "POST /wp-json/wp/v2/posts/12": [
+   {
+    "body": {
+     "content": {
+      "block_version": 1,
+      "protected": false,
+      "raw": "<!-- wp:paragraph -->\n<p>Welcome to WordPress.</p>\n<!-- /wp:paragraph -->",
+      "rendered": "<p>Welcome to WordPress.</p>\n"
+     },
+     "date": "2026-11-01T10:00:00",
+     "excerpt": {
+      "protected": false,
+      "raw": "",
+      "rendered": "<p>Welcome to WordPress.</p>\n"
+     },
+     "id": 12,
+     "link": "https://wp.example.test/hello-world/",
+     "modified": "2026-11-02T11:00:00",
+     "slug": "hello-world",
+     "status": "publish",
+     "title": {
+      "raw": "Hello world!",
+      "rendered": "Hello world!"
+     },
+     "type": "post"
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 200
+   }
+  ],
+  "POST /wp-json/wp/v2/posts/15": [
+   {
+    "body": {
+     "content": {
+      "block_version": 1,
+      "protected": false,
+      "raw": "<!-- wp:paragraph -->\n<p>Welcome to WordPress.</p>\n<!-- /wp:paragraph -->",
+      "rendered": "<p>Welcome to WordPress.</p>\n"
+     },
+     "date": "2026-11-01T10:00:00",
+     "excerpt": {
+      "protected": false,
+      "raw": "",
+      "rendered": "<p>Welcome to WordPress.</p>\n"
+     },
+     "id": 15,
+     "link": "https://wp.example.test/?p=15",
+     "modified": "2026-11-02T11:00:00",
+     "slug": "",
+     "status": "draft",
+     "title": {
+      "raw": "Draft idea",
+      "rendered": "Draft idea"
+     },
+     "type": "post"
+    },
+    "headers": {
+     "content-type": "application/json"
+    },
+    "status": 200
+   }
+  ]
+ },
+ "variants": {
+  "bad_auth": {
+   "GET /wp-json/website-manager-hermes/v1/status": [
+    {
+     "body": {
+      "code": "incorrect_password",
+      "data": {
+       "status": 401
+      },
+      "message": "The provided password is an invalid application password."
+     },
+     "headers": {
+      "content-type": "application/json"
+     },
+     "status": 401
+    }
+   ]
+  },
+  "connector_missing": {
+   "GET /wp-json/website-manager-hermes/v1/status": [
+    {
+     "body": {
+      "code": "rest_no_route",
+      "data": {
+       "status": 404
+      },
+      "message": "No route was found matching the URL and request method."
+     },
+     "headers": {
+      "content-type": "application/json"
+     },
+     "status": 404
+    }
+   ]
+  },
+  "health_degraded": {
+   "GET /wp-json/website-manager-hermes/v1/health": [
+    {
+     "body": {
+      "checked_at": "2026-11-05T09:06:00+00:00",
+      "connector_version": "0.1.0",
+      "cron": {
+       "alternate": false,
+       "disabled": false,
+       "doing_cron": false,
+       "next_event_at": "2026-11-05T09:30:00+00:00",
+       "oldest_overdue_at": null,
+       "overdue_events": 0,
+       "overdue_threshold_s": 3600,
+       "scheduled_events": 12
+      },
+      "database": {
+       "error": null,
+       "reachable": true
+      },
+      "last_error": null,
+      "maintenance_mode": false,
+      "ok": false,
+      "paused_plugins": [
+       {
+        "file": "wp-content/plugins/hello-dolly/hello.php",
+        "line": 42,
+        "message": "Uncaught Error: Call to undefined function x()",
+        "name": "hello-dolly/hello.php",
+        "type": 1
+       }
+      ],
+      "paused_themes": [],
+      "problems": [
+       "paused_plugins"
+      ],
+      "recovery_mode": false,
+      "status": "degraded",
+      "warnings": [],
+      "wp_version": "6.8.1"
+     },
+     "headers": {
+      "content-type": "application/json"
+     },
+     "status": 200
+    }
+   ]
+  },
+  "home_critical": {
+   "GET /": [
+    {
+     "body": "<!DOCTYPE html><html><body><div class=\"wp-die-message\"><p>There has been a critical error on this website.</p></div></body></html>",
+     "headers": {
+      "content-type": "text/html"
+     },
+     "status": 500
+    }
+   ]
+  },
+  "locked": {
+   "POST /wp-json/website-manager-hermes/v1/updates": [
+    {
+     "body": {
+      "code": "wmhc_locked",
+      "data": {
+       "status": 409
+      },
+      "message": "Another update run is in progress. Try again in a few minutes."
+     },
+     "headers": {
+      "content-type": "application/json"
+     },
+     "status": 409
+    }
+   ]
+  }
+ }
+}

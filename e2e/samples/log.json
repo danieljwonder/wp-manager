@@ -1,0 +1,112 @@
+{
+  "http_status": 200,
+  "body": {
+    "entries": [
+      {
+        "time": "2026-11-05T23:17:55+00:00",
+        "timestamp": 1793920675,
+        "user_id": 1,
+        "user_login": "admin",
+        "action": "updates.run",
+        "items": [],
+        "result": "success",
+        "type": "translations",
+        "source": "rest",
+        "summary": []
+      },
+      {
+        "time": "2026-11-05T23:17:54+00:00",
+        "timestamp": 1793920674,
+        "user_id": 1,
+        "user_login": "admin",
+        "action": "updates.run",
+        "items": [
+          "1.0"
+        ],
+        "result": "error",
+        "type": "core",
+        "source": "rest",
+        "error": "That WordPress version is not offered as an update."
+      },
+      {
+        "time": "2026-11-05T23:17:53+00:00",
+        "timestamp": 1793920673,
+        "user_id": 1,
+        "user_login": "admin",
+        "action": "updates.run",
+        "items": [
+          "core"
+        ],
+        "result": "success",
+        "type": "core",
+        "source": "rest",
+        "summary": [
+          {
+            "item": "core",
+            "from_version": "7.1.4",
+            "to_version": "7.1.4",
+            "success": true
+          }
+        ]
+      },
+      {
+        "time": "2026-11-05T23:17:41+00:00",
+        "timestamp": 1793920661,
+        "user_id": 1,
+        "user_login": "admin",
+        "action": "updates.run",
+        "items": [
+          "twentytwentyfour"
+        ],
+        "result": "success",
+        "type": "theme",
+        "source": "rest",
+        "summary": [
+          {
+            "item": "twentytwentyfour",
+            "from_version": "1.0",
+            "to_version": "1.6",
+            "success": true
+          }
+        ]
+      },
+      {
+        "time": "2026-11-05T23:17:21+00:00",
+        "timestamp": 1793920641,
+        "user_id": 1,
+        "user_login": "admin",
+        "action": "updates.run",
+        "items": [
+          "classic-editor/classic-editor.php",
+          "hello-dolly/hello.php",
+          "not-installed/nope.php"
+        ],
+        "result": "partial",
+        "type": "plugin",
+        "source": "rest",
+        "summary": [
+          {
+            "item": "classic-editor/classic-editor.php",
+            "from_version": "1.6.3",
+            "to_version": "1.7.0",
+            "success": true
+          },
+          {
+            "item": "hello-dolly/hello.php",
+            "from_version": "1.6",
+            "to_version": "1.7.2",
+            "success": true
+          },
+          {
+            "item": "not-installed/nope.php",
+            "from_version": null,
+            "to_version": null,
+            "success": false
+          }
+        ]
+      }
+    ],
+    "count": 5,
+    "max": 50
+  }
+}

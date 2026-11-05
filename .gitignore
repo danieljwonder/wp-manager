@@ -1,0 +1,6 @@
+.research/
+__pycache__/
+*.pyc
+.e2e-run/
+node_modules/
+.env

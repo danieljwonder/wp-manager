@@ -115,6 +115,11 @@ function invalidateAll() {
   return queryClient.invalidateQueries({ queryKey: [ID] })
 }
 
+function updatesReady(site) {
+  return Boolean(site && site.last_checked && site.updates &&
+    TYPES.every(([key]) => Array.isArray(site.updates[key])))
+}
+
 // ------------------------------------------------------------------ page
 function Page({ api }) {
   const scope = useScope()
@@ -195,7 +200,8 @@ function Page({ api }) {
     h('p', { className: 'text-xs', style: faint },
       'wp-manager takes no backups. Make sure your host has a recent backup before running updates.'),
     body,
-    openSite ? h(SiteDialog, { api, scope, siteId: openSite, onClose: () => setOpenSite(null) }) : undefined,
+    openSite ? h(SiteDialog, { key: openSite, api, scope, siteId: openSite,
+      summary: (data.sites || []).find(s => s.id === openSite), onClose: () => setOpenSite(null) }) : undefined,
     adding ? h(AddSiteDialog, { api, onClose: () => setAdding(false) }) : undefined)
 }
 
@@ -245,19 +251,39 @@ function SiteCards({ rows, onOpen }) {
 }
 
 // ------------------------------------------------------------------ site detail
-function SiteDialog({ api, scope, siteId, onClose }) {
+function SiteDialog({ api, scope, siteId, summary, onClose }) {
   const [selected, setSelected] = useState({})
   const [confirm, setConfirm] = useState(null)
   const [removing, setRemoving] = useState(false)
   const [lastRun, setLastRun] = useState(null)
   const detail = useQuery({
     queryKey: keyFor(scope, 'site', siteId),
-    queryFn: () => api.rest(`/sites/${encodeURIComponent(siteId)}`),
-    refetchInterval: DETAIL_POLL_MS,
+    queryFn: async () => {
+      const path = `/sites/${encodeURIComponent(siteId)}`
+      let site = await api.rest(path)
+      if (!updatesReady(site) || site.last_error) {
+        // Connection verification has counts, not item records. Load those once on open;
+        // refresh:false reads WordPress's cached offers without forcing an update check.
+        const result = await api.rest(`${path}/scan`, {
+          method: 'POST', body: { refresh: false }, timeoutMs: SCAN_TIMEOUT_MS
+        })
+        if (!result.ok) throw new Error(result.error || 'Could not load pending updates.')
+        site = await api.rest(path)
+        if (!updatesReady(site)) throw new Error('The pending update list is unavailable. Please retry.')
+        // Both views now read the same cached scan. Do not invalidate this in-flight query.
+        void queryClient.invalidateQueries({ queryKey: keyFor(scope, 'sites') })
+      }
+      return site
+    },
+    refetchInterval: query => query.state.status === 'error' ? false : DETAIL_POLL_MS,
     retry: false
   })
   const rescan = useMutation({
-    mutationFn: () => api.rest(`/sites/${encodeURIComponent(siteId)}/scan`, { method: 'POST', body: { refresh: true }, timeoutMs: SCAN_TIMEOUT_MS }),
+    mutationFn: async () => {
+      const result = await api.rest(`/sites/${encodeURIComponent(siteId)}/scan`, { method: 'POST', body: { refresh: true }, timeoutMs: SCAN_TIMEOUT_MS })
+      if (!result.ok) throw new Error(result.error || 'Could not refresh pending updates.')
+      return result
+    },
     onSettled: () => void invalidateAll(),
     onError: err => host.notify({ kind: 'error', message: errorText(err) })
   })
@@ -268,6 +294,7 @@ function SiteDialog({ api, scope, siteId, onClose }) {
   })
 
   const site = detail.data
+  const ready = !detail.isError && !rescan.isPending && updatesReady(site) && !site.last_error
   const updates = (site && site.updates) || {}
   const toggle = (type, id) => setSelected(prev => {
     const next = { ...prev, [type]: { ...(prev[type] || {}) } }
@@ -275,10 +302,16 @@ function SiteDialog({ api, scope, siteId, onClose }) {
     else next[type][id] = true
     return next
   })
-  const chosen = TYPES.map(([key, type]) => [type, Object.keys(selected[key] || {})]).filter(([, items]) => items.length)
+  const chosen = TYPES.map(([key, type]) => [type,
+    (updates[key] || []).filter(item => (selected[key] || {})[item.id]).map(item => item.id)]).filter(([, items]) => items.length)
   const allBatches = TYPES.filter(([key]) => (updates[key] || []).length).map(([, type]) => [type, 'all'])
 
   async function runBatches(batches) {
+    if (!ready || !batches.length || batches.some(([type, items]) => {
+      const group = TYPES.find(([, t]) => t === type)
+      const available = group ? (updates[group[0]] || []).map(item => item.id) : []
+      return !available.length || (items !== 'all' && (!items.length || items.some(id => !available.includes(id))))
+    })) throw new Error('No pending updates are ready to run. Reload the list before confirming.')
     const results = []
     for (const [type, items] of batches) {
       const res = await api.rest(`/sites/${encodeURIComponent(siteId)}/update`, {
@@ -302,25 +335,29 @@ function SiteDialog({ api, scope, siteId, onClose }) {
   return h(Dialog, { open: true, onOpenChange: v => { if (!v) onClose() } },
     h(DialogContent, { className: 'max-w-3xl' },
       h(DialogHeader, null,
-        h(DialogTitle, null, site ? site.label : siteId),
+        h(DialogTitle, null, site ? site.label : summary ? summary.label : siteId),
         h(DialogDescription, null, site ? `${site.url} · WordPress ${site.wp_version || '?'} · PHP ${site.php_version || '?'} · last checked ${ago(site.last_checked)}` : 'Loading…')),
-      detail.isError
-        ? h(ErrorState, { title: 'Could not load this site', description: errorText(detail.error) })
-        : !site
-          ? h(Skeleton, { className: 'h-24 w-full' })
-          : h('div', { className: 'flex max-h-[60vh] flex-col gap-4 overflow-auto text-sm' },
+      h('div', { className: 'flex max-h-[60vh] flex-col gap-4 overflow-auto text-sm' },
+            h(Pending, { pending: (site || summary || {}).pending }),
+            detail.isError || (site && site.last_error)
+              ? h(ErrorState, { title: 'Could not load pending updates', description: errorText(detail.error || site.last_error) },
+                h(Button, { variant: 'outline', onClick: () => detail.refetch() }, 'Retry'))
+              : !ready
+                ? h('div', { role: 'status', className: 'flex flex-col gap-2' },
+                  'Loading pending updates…', h(Skeleton, { className: 'h-24 w-full' }))
+                : h(UpdatesPanel, { updates, selected, toggle }),
+            site ? h('div', { className: 'flex flex-col gap-4' },
             site.last_error ? h('div', { className: 'text-xs', style: { color: 'var(--ui-accent)' } }, `Last scan failed: ${site.last_error.message}`) : undefined,
             h(HealthPanel, { site, busy: check.isPending, onCheck: () => check.mutate() }),
-            h(UpdatesPanel, { updates, selected, toggle }),
             lastRun ? h(RunResults, { runs: lastRun }) : undefined,
-            h(ActionsPanel, { actions: site.recent_actions || [] })),
+            h(ActionsPanel, { actions: site.recent_actions || [] })) : undefined),
       h(DialogFooter, null,
         h(Button, { variant: 'ghost', onClick: () => setRemoving(true) }, 'Remove'),
         h(Button, { variant: 'outline', disabled: !site, onClick: () => site && api.os.openExternal(site.admin_url) },
           h(Codicon, { name: 'link-external', size: 12 }), 'Open wp-admin'),
-        h(Button, { variant: 'outline', disabled: rescan.isPending, onClick: () => rescan.mutate() }, rescan.isPending ? 'Scanning…' : 'Rescan'),
-        h(Button, { variant: 'outline', disabled: !chosen.length, onClick: () => setConfirm({ batches: chosen }) }, 'Update selected'),
-        h(Button, { disabled: !allBatches.length, onClick: () => setConfirm({ batches: allBatches }) }, 'Update all'))),
+        h(Button, { variant: 'outline', disabled: rescan.isPending || detail.isPending, onClick: () => rescan.mutate() }, rescan.isPending ? 'Scanning…' : 'Rescan'),
+        h(Button, { variant: 'outline', disabled: !ready || !chosen.length, onClick: () => setConfirm({ batches: chosen }) }, 'Update selected'),
+        h(Button, { disabled: !ready || !allBatches.length, onClick: () => setConfirm({ batches: allBatches }) }, 'Update all'))),
     h(ConfirmDialog, {
       open: Boolean(confirm),
       onClose: () => setConfirm(null),

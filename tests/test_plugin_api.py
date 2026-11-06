@@ -89,6 +89,28 @@ class Api(unittest.TestCase):
             self.assertNotIn(SECRET, body)
             self.assertNotIn(SECRET_NOSPACE, body)
 
+    def test_initial_detail_hydration_uses_cached_offers_and_shared_counts(self):
+        self.add()
+        before = self.req("GET", "/sites/wp-example").json()
+        self.assertIsNone(before["last_checked"])
+        self.assertGreater(before["pending"]["total"], 0)
+        self.assertFalse(any(before["updates"].values()))
+        self.t.calls.clear()
+        result = self.req("POST", "/sites/wp-example/scan", json={"refresh": False}).json()
+        self.assertTrue(result["ok"])
+        detail = self.req("GET", "/sites/wp-example").json()
+        summary = self.req("GET", "/sites").json()["sites"][0]
+        self.assertIsNotNone(detail["last_checked"])
+        self.assertIsNone(detail["health_detail"])
+        self.assertEqual(summary["pending"], detail["pending"])
+        for key, items in detail["updates"].items():
+            self.assertEqual(detail["pending"][key], len(items))
+        self.assertEqual(detail["updates"], result["updates"])
+        self.assertEqual(len(self.t.calls), 2)  # status + cached update offers only
+        for call in self.t.calls:
+            self.assertEqual(call.method, "GET")
+            self.assertNotIn("refresh=", call.url)
+
     def test_add_with_password_field(self):
         r = self.req("POST", "/sites", json={"url": BASE, "username": USER, "id": "wp-example",
                                              "app_password": SECRET})

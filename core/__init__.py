@@ -7,6 +7,6 @@ by path (dashboard side).
 """
 
 PLUGIN_ID = "wp-manager"
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 CONNECTOR_NAMESPACE = "website-manager-hermes/v1"
 CONNECTOR_SLUG = "website-manager-hermes-connector"

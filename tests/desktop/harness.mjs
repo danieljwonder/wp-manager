@@ -36,7 +36,7 @@ const site = {
 }
 const detail = {
   ...site,
-  last_error: { message: 'boom' },
+  last_error: null,
   updates: {
     plugins: [{ id: 'hello-dolly/hello.php', name: 'Hello Dolly', current_version: '1.6', new_version: '1.7.2', compatible: true }],
     themes: [{ id: 'twentytwentyone', name: 'Twenty Twenty-One', current_version: '1.8', new_version: '2.5', compatible: false }],

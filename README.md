@@ -69,6 +69,13 @@ there, but the Desktop page must also exist on the computer running Desktop. Ins
 Please paste connection strings into the Desktop dialog, not into chat. A string pasted into chat
 ends up in the conversation history.
 
+Opening a site's details automatically loads its pending update items if they have not been
+loaded yet. The dialog keeps the known summary counts visible while loading. This first load
+reads the site's cached WordPress update offers; it does not install updates or force WordPress
+to refresh its update checks. **Rescan** explicitly refreshes those checks. Failed loads show an
+error and **Retry**, not an all-clear message. Update controls stay disabled until a usable item
+list is available. Health remains **Not checked yet** until you run a health check separately.
+
 You can revoke access at any time: in wp-admin, go to **Users → Profile → Application
 Passwords** and revoke "Hermes (website-manager)". wp-manager never uses or asks for your
 WordPress login password.

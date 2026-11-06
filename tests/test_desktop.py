@@ -72,6 +72,12 @@ class Node(unittest.TestCase):
         self.assertEqual(out.returncode, 0, out.stderr)
 
     def test_renders_every_screen_against_stubs(self):
+        self.run_harness("harness.mjs")
+
+    def test_initial_detail_loading_lifecycle(self):
+        self.run_harness("initial-detail.mjs")
+
+    def run_harness(self, name):
         tmp = Path(tempfile.mkdtemp(prefix="wpm-desktop-"))
         try:
             stubs = (ROOT / "tests" / "desktop" / "stubs.mjs").resolve().as_uri()
@@ -80,7 +86,7 @@ class Node(unittest.TestCase):
                 code = re.sub(r"""(['"])""" + re.escape(spec) + r"""\1""", repr(stubs).replace("'", "'"), code)
             target = tmp / "plugin.mjs"
             target.write_text(code)
-            harness = ROOT / "tests" / "desktop" / "harness.mjs"
+            harness = ROOT / "tests" / "desktop" / name
             out = subprocess.run([NODE, str(harness), target.as_uri()], capture_output=True, text=True, timeout=60)
             self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
             self.assertRegex(out.stdout, r"OK \d+ renders")

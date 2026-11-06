@@ -1,6 +1,27 @@
 # Integration verification
 
-## Verified on this tree
+## 0.1.1 initial detail-loading fix
+
+- Reproduced the exact fresh-site mismatch in the strict Node renderer: nonzero connection
+  summary counts, `last_checked: null`, fabricated empty item arrays, and the incorrect
+  “Everything is up to date” message. The regression failed before the fix.
+- Fixed in Desktop only, using existing backend routes. An initial read-only scan with
+  `refresh: false` hydrates missing item records; successful detail and summary reads share
+  the cached scan. Ordinary detail polling does not repeat WordPress scans. Query errors
+  stop interval retries and expose Retry. Rescan remains `refresh: true`.
+- Covered deferred loading, summary counts, populated/empty success, no-count-but-unscanned
+  state, `ok:false`, malformed results, stale data on query error, cached scan errors, no-op
+  and stale confirmations. Added API contract coverage proving only two WordPress GETs
+  (status and cached offers), matching counts/items and untouched health.
+- `cd tests && /opt/hermes/.venv/bin/python -m unittest`: **121 passed**.
+- `node --check desktop/plugin.js` and `git diff --check`: passed.
+- Clean-copy Hermes validation (`--install-deps`) and doctor (`--ci`): passed; security
+  safe, SDK surface clean, **9 tools / 1 hook**. Excluded `.git`, `.research`, `.e2e-run`,
+  and Python caches.
+- No production WordPress requests or update operations were made for this fix. Real Mac
+  Desktop rendering remains unverified; its manually installed client file must be replaced.
+
+## Original 0.1.0 verification (historical)
 
 - Joined Python core → real connector → real WordPress **7.1.4 / PHP 8.3.36**, using a freshly booted, disposable Playground. `scripts/record_fixtures.py --creds-file .e2e-run/creds.json --apply plugin:classic-editor/classic-editor.php --apply theme:twentytwentyfour --content --out tests/fixtures/recorded.json` completed **13/13 steps**.
 - Classic Editor **1.6.3 → 1.7.0** and Twenty Twenty-Four **1.0 → 1.6** were actually installed. Independent core REST reads confirmed installed versions and retained active state. Post-update homepage/REST/connector health verdicts were **ok** for both runs; rescans succeeded.

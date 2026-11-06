@@ -3,8 +3,8 @@
 // missing import, an undefined component or a crash in any render path fails the test.
 // Prop shapes are checked against the Desktop UI kit's real prop types where it matters.
 
-export const calls = { notify: [], rest: [], navigate: [] }
-export const state = { overrides: {}, current: null, counter: 0, restData: {} }
+export const calls = { notify: [], rest: [], navigate: [], queries: [], mutations: [], invalidations: [], nodes: [], text: [] }
+export const state = { overrides: {}, current: null, counter: 0, restData: {}, queryStates: {} }
 
 // ---------------------------------------------------------------- jsx runtime
 export function jsx(type, props, key) {
@@ -33,9 +33,10 @@ export default { useState, useMemo, useEffect, useRef, useCallback }
 export function render(node, path = []) {
   if (node === null || node === undefined || node === false || node === true) return
   if (Array.isArray(node)) { node.forEach(n => render(n, path)); return }
-  if (typeof node !== 'object') return
+  if (typeof node !== 'object') { calls.text.push(String(node)); return }
   if (!node.$$el) throw new Error(`non-element object rendered as child at ${path.join(' > ')}: ${JSON.stringify(node).slice(0, 80)}`)
   const { type, props } = node
+  calls.nodes.push(node)
   if (typeof type === 'function') {
     const prev = [state.current, state.counter]
     state.current = type.name
@@ -60,16 +61,18 @@ export const host = {
   navigate: p => { calls.navigate.push(p) }
 }
 export const useValue = a => a.get()
-export const queryClient = { invalidateQueries: () => Promise.resolve(), removeQueries: () => {}, cancelQueries: () => Promise.resolve() }
+export const queryClient = { invalidateQueries: opts => { calls.invalidations.push(opts); return Promise.resolve() }, removeQueries: () => {}, cancelQueries: () => Promise.resolve() }
 export function useQuery(opts) {
   if (!Array.isArray(opts.queryKey)) throw new Error('queryKey must be an array')
-  if (opts.refetchInterval !== undefined && opts.refetchInterval < 30000) throw new Error('refetchInterval below 30s')
+  if (typeof opts.refetchInterval === 'number' && opts.refetchInterval < 30000) throw new Error('refetchInterval below 30s')
+  calls.queries.push(opts)
   const key = opts.queryKey.slice(2).join('/')
   const data = state.restData[key]
-  return { data, isPending: data === undefined, isError: false, error: null, refetch: () => {} }
+  return { data, isPending: data === undefined, isError: false, error: null, refetch: () => {}, ...state.queryStates[key] }
 }
 export function useMutation(opts) {
   if (typeof opts.mutationFn !== 'function') throw new Error('mutationFn required')
+  calls.mutations.push(opts)
   return { mutate: () => {}, isPending: false, isError: false, error: null }
 }
 export const ROUTES_AREA = 'routes'
@@ -120,7 +123,7 @@ export function EmptyState(props) {
 }
 export function ErrorState(props) {
   if (!props.title) throw new Error('ErrorState title')
-  return props.children
+  return [props.title, props.description, props.children]
 }
 export function Codicon(props) {
   if (typeof props.name !== 'string') throw new Error('Codicon name')

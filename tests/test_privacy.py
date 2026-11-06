@@ -59,7 +59,7 @@ class EverythingClean(unittest.TestCase):
             self.assertNotIn("wpmh1:", blob.replace("wpmh1:[redacted]", ""))
 
     def test_full_workflow_never_leaks(self):
-        r = self.run_tool(tools.wp_site_add, {"connection_string": connection_string(), "id": "wp-example"})
+        r = self.run_tool(tools.wp_site_add, {"connection_string": connection_string(), "id": "wp-example", "storage": "env"})
         self.assertTrue(r["success"], r)
         self.run_tool(tools.wp_sites, {})
         self.run_tool(tools.wp_updates_scan, {"refresh": True})

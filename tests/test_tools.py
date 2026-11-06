@@ -47,8 +47,8 @@ class Sites(Base):
         self.assertIn("hermes secrets onepassword set WPM_WP_EXAMPLE_APP_PASSWORD", r["error"])
         self.assertEqual(self.t.network_calls, 0)
 
-    def test_add_with_connection_string_stores_env_fallback(self):
-        r = call(tools.wp_site_add, {"connection_string": connection_string(), "id": "wp-example"})
+    def test_add_with_connection_string_stores_env_only_when_selected(self):
+        r = call(tools.wp_site_add, {"connection_string": connection_string(), "id": "wp-example", "storage": "env"})
         self.assertTrue(r["success"], r)
         self.assertEqual(self.env.env_writes, ["WPM_WP_EXAMPLE_APP_PASSWORD"])
         self.assertIn("WPM_WP_EXAMPLE_APP_PASSWORD", r["credential_storage"])

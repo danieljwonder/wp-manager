@@ -448,6 +448,11 @@ function Field({ label, hint, children }) {
 
 function AddSiteDialog({ api, onClose }) {
   const [mode, setMode] = useState('string')
+  const scope = useScope()
+  const [storage, setStorage] = useState('')
+  const [vaultId, setVaultId] = useState('')
+  const vaults = useQuery({ queryKey: keyFor(scope, 'credential-storage'),
+    queryFn: () => api.rest('/credential-storage'), retry: false })
   const [credKind, setCredKind] = useState('env')
   const [form, setForm] = useState({ connection_string: '', url: '', username: '', label: '', tags: '', env: '', op: '', app_password: '', allow_insecure: false })
   const [result, setResult] = useState(null)
@@ -459,13 +464,16 @@ function AddSiteDialog({ api, onClose }) {
       const body = { label: form.label.trim() || undefined, tags: form.tags.trim() || undefined }
       if (mode === 'string') {
         body.connection_string = form.connection_string.trim()
+        body.storage = storage
+        if (storage === 'onepassword') body.vault_id = vaultId
+        if (storage === 'existing') body.credential = credKind === 'op' ? { op: form.op.trim() } : { env: form.env.trim() }
       } else {
         Object.assign(body, { url: form.url.trim(), username: form.username.trim(), allow_insecure: form.allow_insecure || undefined })
         if (credKind === 'env' && form.env.trim()) body.credential = { env: form.env.trim() }
         if (credKind === 'op') body.credential = { op: form.op.trim() }
-        if (credKind === 'store') body.app_password = form.app_password
+        if (credKind === 'store') { body.app_password = form.app_password; body.storage = 'env' }
       }
-      return api.rest('/sites', { method: 'POST', body })
+      return api.rest('/sites', { method: 'POST', body, timeoutMs: 120000 })
     },
     onSuccess: res => {
       setResult(res)
@@ -475,7 +483,9 @@ function AddSiteDialog({ api, onClose }) {
   })
 
   const canSubmit = mode === 'string'
-    ? form.connection_string.trim().startsWith('wpmh1:')
+    ? form.connection_string.trim().startsWith('wpmh1:') && (storage === 'env' ||
+      (storage === 'onepassword' && vaults.data?.available && vaults.data.vaults.some(v => v.id === vaultId)) ||
+      (storage === 'existing' && (credKind === 'op' ? form.op.trim().startsWith('op://') : form.env.trim())))
     : form.url.trim() && form.username.trim() && (credKind !== 'op' || form.op.trim().startsWith('op://')) && (credKind !== 'store' || form.app_password.trim())
 
   const modeButton = (value, label) => h(Button, { key: value, size: 'sm', variant: mode === value ? 'secondary' : 'ghost', 'aria-pressed': mode === value, onClick: () => setMode(value) }, label)
@@ -495,8 +505,27 @@ function AddSiteDialog({ api, onClose }) {
         : h('div', { className: 'flex flex-col gap-3 text-sm' },
           h('div', { className: 'flex gap-1' }, modeButton('string', 'Connection string'), modeButton('manual', 'Enter details')),
           mode === 'string'
-            ? h(Field, { label: 'Connection string', hint: 'Starts with wpmh1:. It is shown once on the site; the password inside is saved to the Hermes .env as WPM_<SITE>_APP_PASSWORD.' },
-              h(Input, { type: 'password', autoComplete: 'off', spellCheck: false, value: form.connection_string, onChange: set('connection_string'), placeholder: 'wpmh1:…' }))
+            ? h('div', { className: 'flex flex-col gap-3' },
+              h(Field, { label: 'Connection string', hint: 'Starts with wpmh1:. Choose password storage below; there is no automatic .env fallback.' },
+                h(Input, { type: 'password', autoComplete: 'off', spellCheck: false, value: form.connection_string, onChange: set('connection_string'), placeholder: 'wpmh1:…' })),
+              h(Field, { label: 'Password storage' }, h('select', { value: storage, onChange: e => setStorage(e.target.value), 'aria-label': 'Password storage' },
+                h('option', { value: '' }, 'Choose storage…'),
+                h('option', { value: 'onepassword', disabled: !vaults.data?.available }, '1Password (recommended when available)'),
+                h('option', { value: 'existing' }, 'Existing Hermes secret / 1Password reference'),
+                h('option', { value: 'env' }, 'Store locally in Hermes .env (explicit opt-in)'))),
+              vaults.isPending ? h('span', { role: 'status' }, 'Checking 1Password vault access…') : undefined,
+              vaults.isError || vaults.data?.available === false ? h('div', { className: 'text-xs', style: muted },
+                '1Password unavailable. Check CLI access or explicitly choose another storage option.',
+                h(Button, { size: 'sm', variant: 'ghost', onClick: () => vaults.refetch() }, 'Retry vault access')) : undefined,
+              storage === 'onepassword' ? h(Field, { label: '1Password vault', hint: 'Creates a new item, verifies its ID-based reference, then authenticates with WordPress. Existing items are never overwritten. If verification fails, remove any newly created item manually.' },
+                h('select', { value: vaultId, onChange: e => setVaultId(e.target.value), 'aria-label': '1Password vault' },
+                  h('option', { value: '' }, 'Choose a vault…'),
+                  ...(vaults.data?.vaults || []).map(v => h('option', { key: v.id, value: v.id }, v.name)))) : undefined,
+              storage === 'existing' ? h('div', { className: 'flex flex-col gap-2' },
+                h('div', null, credButton('env', 'Hermes secret'), credButton('op', '1Password ref')),
+                h(Field, { label: credKind === 'op' ? '1Password reference' : 'Hermes secret name', hint: 'The connection-string password is ignored; the existing reference must authenticate.' },
+                  h(Input, { value: credKind === 'op' ? form.op : form.env, onChange: set(credKind === 'op' ? 'op' : 'env'), spellCheck: false }))) : undefined,
+              storage === 'env' ? h('p', { className: 'text-xs', style: muted }, 'You selected local .env storage (mode 0600), not 1Password.') : undefined)
             : h('div', { className: 'flex flex-col gap-3' },
               h(Field, { label: 'Site address' }, h(Input, { value: form.url, onChange: set('url'), placeholder: 'https://example.com' })),
               h(Field, { label: 'WordPress username' }, h(Input, { value: form.username, onChange: set('username'), autoComplete: 'off' })),

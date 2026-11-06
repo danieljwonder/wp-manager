@@ -1,7 +1,7 @@
 ---
 name: wp-manager
 description: Use when managing WordPress sites (updates, health, posts, pages) via wp_* tools.
-version: 0.1.0
+version: 0.1.2
 metadata:
   hermes:
     tags: [wordpress, updates, content, websites]
@@ -19,7 +19,12 @@ creating or editing posts and pages. wp-manager takes **no backups**.
    **Tools → Hermes Connector**, click **Create connection for Hermes** and copy the `wpmh1:…` string.
 2. Best: the user pastes that string into **Hermes Desktop → WordPress → Add site**. It contains a
    password, so steer users away from pasting it into chat. If they already did, call `wp_site_add`
-   with `connection_string` and never repeat the string or any part of it back.
+   only after confirming explicit storage: `storage: onepassword` with the user's selected
+   `vault_id`, `storage: existing` with `credential`, or `storage: env` when the user opts into
+   local .env. Never repeat the string or any part of it back. Prefer Desktop for vault selection.
+   New 1Password items require approval, are ID-reference/read-back/WordPress-auth verified before
+   registry save, and never fall back to .env. A failed attempt may leave a new item for manual
+   removal. Existing sites are not migrated. Report the returned `credential_storage` accurately.
 3. Users with a password manager can store the Application Password as a Hermes secret first
    (`hermes secrets onepassword set WPM_<SITE_ID>_APP_PASSWORD op://Vault/Item/password`) and call
    `wp_site_add` with `url` and `username` only.

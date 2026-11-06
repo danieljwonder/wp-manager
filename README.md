@@ -63,7 +63,8 @@ there, but the Desktop page must also exist on the computer running Desktop. Ins
    called "Hermes (website-manager)" and shows a one-time connection string starting with `wpmh1:`.
    Copy it. It is shown only once.
 3. **Add the site in Hermes Desktop.** Open **WordPress → Add site**, paste the connection string
-   and click **Connect**. Hermes checks the connection, saves the site, and tells you where the
+   and explicitly choose **1Password**, **Existing Hermes secret / 1Password reference**, or
+   **Store locally in Hermes .env**, then click **Connect**. Hermes checks the connection, saves the site, and tells you where the
    password was stored.
 
 Please paste connection strings into the Desktop dialog, not into chat. A string pasted into chat
@@ -86,7 +87,20 @@ Each site record in `$HERMES_HOME/wp-manager/sites.json` holds the site address,
 *reference* to the Application Password. It never holds the password itself. wp-manager looks up
 the password through Hermes's own secret handling each time it needs it.
 
-**Recommended: a password manager through Hermes secrets.** Hermes can read secrets from
+**Recommended for connection strings: 1Password.** The backend lists vault names and IDs only,
+using the trusted `op_binary` configured on the Hermes machine. Choose a vault explicitly.
+The CLI must already be authenticated and allowed to create/read items in that vault. A service
+account wrapper can be configured as `op_binary`; keep its token in Hermes secrets, not settings.
+wp-manager creates a **new** Login item (never overwrites an item), passes the password only as
+JSON on subprocess stdin, reads `op://<vault ID>/<item ID>/password` back, checks exact equality,
+and authenticates against the original validated WordPress address before saving the site.
+It stores only that ID-based reference in the registry. CLI errors/output never enter errors or logs.
+If CLI access is unavailable this option is disabled, with Retry. Creation, read-back or WordPress
+authentication failure leaves the registry unchanged and **never falls back to .env**. A failed
+attempt may leave a newly created item in 1Password; remove that item manually before retrying.
+There is no automatic migration of existing sites or deletion of vault items.
+
+**Existing Hermes secrets:** Hermes can read secrets from
 1Password, Bitwarden or your own helper command. Put the Application Password in your vault, then
 map it to the site's secret name. The name is `WPM_<SITE_ID>_APP_PASSWORD`, where the site id is
 in upper case with `-` turned into `_`:
@@ -106,8 +120,8 @@ docs for [1Password](https://hermes-agent.nousresearch.com/docs/user-guide/secre
 
 - A direct 1Password reference per site (`op://Vault/Item/field`). Hermes runs the `op` CLI on the
   Hermes machine whenever it needs the password. The `op_binary` setting names the program.
-- **Store in .env**, for people without a password manager. When you paste a connection string,
-  or choose "Store in .env", the password is written to the Hermes `.env` file as
+- **Store in .env**, for people without a password manager. Only when you explicitly choose
+  "Store in .env", the password is written to the Hermes `.env` file as
   `WPM_<SITE_ID>_APP_PASSWORD`. The file is set to permissions `0600`. Only that one line is added
   or replaced.
 
@@ -123,6 +137,8 @@ Passwords never appear in tool results, logs, `state.json`, the action log or er
 - **Pointing a new site at an existing secret asks first.** This covers a 1Password reference or
   another site's secret name, because that sends the secret to the new address
   (`wp-manager:credential:<site>`).
+- **Creating a new 1Password item from a tool asks first** (`wp-manager:credential-store:<site>`)
+  and is blocked unattended. In Desktop, choosing storage/vault and pressing Connect is approval.
 - **Unattended runs cannot change sites.** In cron jobs and webhook sessions, updates and
   publishing are refused because nobody is there to approve them. Scans and health checks still
   work, so a scheduled "scan and tell me what's pending" job is fine.
@@ -145,7 +161,7 @@ in `config.yaml`:
 | Setting | Default | What it does |
 |---|---|---|
 | `require_approval` | `true` | Ask before updates, publishing and editing published content. Turning it off also allows those actions in cron. |
-| `op_binary` | `op` | 1Password CLI used for `op://` site references. |
+| `op_binary` | `op` | Trusted 1Password CLI for reference reads, vault metadata and explicit item creation. |
 | `request_timeout` | `60` | Seconds per request. Update runs use at least 300. |
 | `max_parallel` | `4` | Sites scanned at the same time. |
 
@@ -161,7 +177,8 @@ in `config.yaml`:
 ## What gets sent where
 
 wp-manager talks only to the WordPress sites you add, using the WordPress REST API with the
-site's Application Password. It also uses the `op` CLI when you give a site an `op://` reference.
+site's Application Password. It also uses the `op` CLI for `op://` references, vault metadata,
+and explicitly selected 1Password item creation.
 It makes no other network calls and sends no telemetry. The connector only contacts WordPress.org's
 normal update service.
 

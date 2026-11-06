@@ -148,12 +148,17 @@ def get_site(site_id: str):
     return _scrubbed(_call(lambda: _core("service").site_detail(site_id)))
 
 
+@router.get("/credential-storage")
+def credential_storage():
+    return _call(lambda: _core("onepassword").options(_core("settings").current().op_binary))
+
+
 @router.post("/sites")
 def add_site(body: dict):
     if not isinstance(body, dict):
         raise HTTPException(status_code=400, detail={"error": "expected a JSON object", "kind": "invalid"})
     allowed = {"url", "username", "label", "id", "tags", "credential", "connection_string", "app_password",
-               "allow_insecure"}
+               "allow_insecure", "storage", "vault_id"}
     args = {k: v for k, v in body.items() if k in allowed and v not in (None, "")}
     result = _call(lambda: _core("service").add_site(args, actor=ACTOR))
     _broadcast("sites.updated", {"site": result["site"]["id"]})

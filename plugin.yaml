@@ -1,5 +1,5 @@
 name: wp-manager
-version: 0.1.1
+version: 0.1.2
 manifest_version: 2
 api_version: 1
 description: >-
@@ -36,7 +36,7 @@ config_schema:
     type: str
     default: "op"
     label: "1Password CLI"
-    description: "Program used for credentials given as op://Vault/Item/field references. Not needed when passwords are Hermes secrets."
+    description: "Trusted CLI program for op:// reads and explicit new-item creation. Must already have vault access on the Hermes backend."
   request_timeout:
     type: int
     default: 60

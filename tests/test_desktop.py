@@ -74,6 +74,9 @@ class Node(unittest.TestCase):
     def test_renders_every_screen_against_stubs(self):
         self.run_harness("harness.mjs")
 
+    def test_explicit_storage_choice(self):
+        self.run_harness("storage.mjs")
+
     def test_initial_detail_loading_lifecycle(self):
         self.run_harness("initial-detail.mjs")
 

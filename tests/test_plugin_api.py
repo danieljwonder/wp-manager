@@ -54,7 +54,7 @@ class Api(unittest.TestCase):
 
     def add(self):
         r = self.req("POST", "/sites", json={"connection_string": connection_string(), "id": "wp-example",
-                                             "tags": ["clients"]})
+                                             "tags": ["clients"], "storage": "env"})
         self.assertEqual(r.status_code, 200, r.text)
         return r.json()
 
@@ -113,7 +113,7 @@ class Api(unittest.TestCase):
 
     def test_add_with_password_field(self):
         r = self.req("POST", "/sites", json={"url": BASE, "username": USER, "id": "wp-example",
-                                             "app_password": SECRET})
+                                             "app_password": SECRET, "storage": "env"})
         self.assertEqual(r.status_code, 200, r.text)
         self.assertIn(".env", r.json()["credential_storage"])
         self.assertNotIn(SECRET_NOSPACE, r.text)

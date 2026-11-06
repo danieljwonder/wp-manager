@@ -13,7 +13,7 @@ import time
 import urllib.parse
 from typing import Any, Optional
 
-from . import connector, credentials, health, redact, registry, settings, state
+from . import connector, credentials, health, onepassword, redact, registry, settings, state
 from .client import WPClient, WPError
 
 CONTENT_TYPES = {"post": "posts", "page": "pages"}
@@ -144,6 +144,21 @@ def plan_add(args: dict) -> dict:
             password = credentials._clean_password(args["app_password"])  # noqa: SLF001
             redact.remember(password, username)
             store_env = True
+    storage = args.get("storage")
+    if storage not in (None, "onepassword", "existing", "env"):
+        raise ServiceError("storage must be onepassword, existing or env")
+    if (conn or args.get("app_password")) and not storage and not args.get("credential"):
+        raise ServiceError("choose password storage explicitly: onepassword, existing or env")
+    if storage == "existing" and not args.get("credential"):
+        raise ServiceError("existing storage requires a credential reference")
+    if storage in ("env", "onepassword") and args.get("credential"):
+        raise ServiceError("new storage cannot be combined with an existing credential reference")
+    if storage == "onepassword":
+        if not password:
+            raise ServiceError("1Password creation requires a connection string or Application Password")
+        if not isinstance(args.get("vault_id"), str) or not onepassword.ID_RE.fullmatch(args["vault_id"]):
+            raise ServiceError("choose an explicit 1Password vault")
+        store_env = False
     for s in registry.list_sites():
         if s["id"] == site_id:
             raise ServiceError(f"a site with id {site_id!r} already exists; pass a different id")
@@ -153,6 +168,8 @@ def plan_add(args: dict) -> dict:
         "site": {"id": site_id, "label": label, "url": url, "username": username, "tags": tags,
                  "credential": ref, "allow_insecure": allow_insecure},
         "store_env": store_env,
+        "storage": storage,
+        "vault_id": args.get("vault_id"),
         "_password": password,
         "from_connection_string": bool(conn),
         "ignored_connection_password": bool(conn and args.get("credential")),
@@ -169,8 +186,18 @@ def add_site(args: dict, *, actor: str) -> dict:
             password = credentials.resolve(site, cfg.op_binary)
         except credentials.CredentialError as exc:
             raise ServiceError(str(exc), kind="credential") from exc
+    storage = None
+    if plan["storage"] == "onepassword":
+        site["credential"], storage = onepassword.create(cfg.op_binary, plan["vault_id"], site, password)
+        # create() compared the ID-addressed read-back exactly. Authenticate against the
+        # original validated site URL, never a URL returned by the password manager.
     client = WPClient(site, password, timeout=cfg.request_timeout)
-    raw = client.connector("GET", "status")
+    try:
+        raw = client.connector("GET", "status")
+    except WPError:
+        if plan["storage"] == "onepassword":
+            raise ServiceError("WordPress authentication/connection failed; registry unchanged. Remove the newly created 1Password item manually", kind="credential") from None
+        raise
     status = connector.normalize_status(raw)
     if not status.get("wp_version") and not status.get("connector_version"):
         raise ServiceError("the site answered, but not with a connector status; is the connector up to date?",
@@ -180,7 +207,7 @@ def add_site(args: dict, *, actor: str) -> dict:
             storage = credentials.store_in_env(site["credential"]["env"], password)
         except credentials.CredentialError as exc:
             raise ServiceError(f"connected, but the password could not be stored: {exc}", kind="credential") from exc
-    else:
+    elif storage is None:
         storage = f"using existing {registry.credential_label(site['credential'])} (nothing was written)"
     saved = registry.add_site(site)
     state.update(site["id"], status=status, last_scan=None, last_error=None)

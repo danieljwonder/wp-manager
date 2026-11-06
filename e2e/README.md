@@ -25,11 +25,11 @@ e2e/stop-playground.sh
 
 `verify-core.mjs` verifies that a major core target is blocked by default, enables it through the actual nonce-protected admin settings form, then installs the offered WordPress release and checks `/status`, `/health`, and the homepage. Start with an old WP version, not `latest`.
 
-Options: `WMHC_E2E_PORT` (9400), `WMHC_E2E_PHP` (8.3), `WMHC_E2E_WP` (latest), `WMHC_E2E_TIMEOUT` (420 seconds), `WMHC_E2E_LOCALE` (optional, e.g. `de_DE`), `WMHC_E2E_LABEL` (suffix on sample/result directories), `WMHC_LINT_PHP` (`"8.3 7.4"`). WordPress `6.5` resolves to the latest patch on that branch, currently 6.5.14. The script injects `preferredVersions` into a generated blueprint because CLI flags alone were ignored when a blueprint was supplied.
+Options: `WMHC_E2E_PORT` (9400), `WMHC_E2E_PHP` (8.3), `WMHC_E2E_WP` (latest), `WMHC_E2E_TIMEOUT` (420 seconds), `WMHC_E2E_LOCALE` (optional, e.g. `de_DE`), `WMHC_E2E_LABEL` (suffix on sample/result directories), `WMHC_LINT_PHP` (`"8.3 7.4"`). WordPress `6.5` resolves to a patch on that branch (6.5.14 in the recorded run), not exact 6.5.0. The script injects `preferredVersions` into a generated blueprint because CLI flags alone were ignored when a blueprint was supplied.
 
 `lint.sh` uses the CLI's PHP-wasm runtime to parse/compile all 10 plugin PHP files and run actual `php -l` on each, under both PHP 8.3 and 7.4. It does not claim to be a PHPCS/WPCS run.
 
-## Proven
+## Historical recorded results (2026-11-05 UTC)
 
 * WP **7.1.4 / PHP 8.3.36**: **48/48** checks passed.
 * WP **6.5.14 / PHP 7.4.34-dev**: **44/44** checks passed (Abilities API correctly absent).
@@ -44,4 +44,4 @@ See [`CONNECTOR_REPORT.md`](CONNECTOR_REPORT.md) for exact results/limitations a
 
 With the CLI's default six workers, a worker can briefly retain stale `.maintenance` state after an update: a request returns HTTP 200 with HTML containing `require(/wordpress/.maintenance): Failed to open stream` / a fatal error, even though the upgrader removed the file. The verifier reports that response, waits for 12 clean health probes, then performs the real assertions. It does **not** fake a healthy response. On a real host, treat non-JSON/unhealthy responses seriously; this harness accommodation is not client behavior.
 
-The server is ephemeral. Start afresh before each full verification (otherwise the old plugin/theme versions are already updated). Stop with the provided script, which terminates the npx process group, not just its launcher. The completed work leaves no Playground server running.
+The server is ephemeral. Start afresh before each full verification (otherwise the old plugin/theme versions are already updated). Stop with the provided script, which terminates the npx process group, not just its launcher. Confirm shutdown after each run.

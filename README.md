@@ -5,8 +5,8 @@ see which plugins, themes, translations and WordPress versions need updating, in
 after you approve them, check that each site still works afterwards, and write or edit posts and
 pages from chat.
 
-It is meant to replace tools like InfiniteWP or MainWP for everyday maintenance. It is **not** a
-full replacement: there are no backups, client reports, staging sites or malware scans.
+Use it for routine site maintenance and content editing. It does not provide backups,
+client reports, staging sites or malware scans.
 
 > **⚠️ wp-manager takes no backups.** Before you run updates, especially across many sites, make
 > sure your host has a recent backup you know how to restore. After every update run, wp-manager
@@ -139,9 +139,10 @@ Passwords never appear in tool results, logs, `state.json`, the action log or er
   (`wp-manager:credential:<site>`).
 - **Creating a new 1Password item from a tool asks first** (`wp-manager:credential-store:<site>`)
   and is blocked unattended. In Desktop, choosing storage/vault and pressing Connect is approval.
-- **Unattended runs cannot change sites.** In cron jobs and webhook sessions, updates and
-  publishing are refused because nobody is there to approve them. Scans and health checks still
-  work, so a scheduled "scan and tell me what's pending" job is fine.
+- **With approval required (the default), unattended updates and publishing are blocked.**
+  Cron jobs and webhook sessions cannot approve these actions. Disabling `require_approval`
+  removes those guards. Draft creation is not gated. Scans and health checks still work, so a
+  scheduled "scan and tell me what's pending" job is fine.
 - **The Desktop "Update" buttons count as your approval.** They call the backend directly and
   show their own confirmation dialog.
 - **After every update run, a health check runs.** It loads the home page (status code, response
@@ -185,10 +186,16 @@ normal update service.
 ## Development
 
 ```bash
-cd tests && /opt/hermes/.venv/bin/python -m unittest     # unit tests (stdlib only; node optional)
-hermes plugins validate . --install-deps                  # catalog checks
+(cd tests && python -m unittest)   # use the Hermes Python environment
+hermes plugins validate .         # validate a clean checkout
+hermes plugins doctor . --ci      # runtime registration checks
 ```
 
-`tests/fixtures/` holds replayable responses. `scripts/record_fixtures.py` records new ones from a
-disposable WordPress (see `e2e/` for a WordPress Playground setup). The Python plugin is MIT
-licensed. The WordPress connector is GPLv2-or-later.
+See [architecture](docs/architecture.md), the [connector API](docs/connector-api.md), and
+[testing](docs/testing.md) for dependencies, fixture provenance, recorded evidence and known
+gaps. `scripts/record_fixtures.py` records responses from a disposable WordPress;
+[the Playground harness](e2e/README.md) provides one. Real Desktop rendering and live-vault
+integration remain unverified; unit tests are not a security audit. Host-isolated backend calls
+can time out while an update continues: scan and check health before retrying a write.
+
+The Python plugin is MIT licensed. The WordPress connector is GPLv2-or-later.

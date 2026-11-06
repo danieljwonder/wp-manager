@@ -12,7 +12,7 @@ description: >-
 author: Daniel Wonder
 license: MIT
 homepage: https://github.com/danieljwonder/wp-manager
-tags: [wordpress, website, cms, updates, maintenance, infinitewp, mainwp, content, desktop]
+tags: [wordpress, website, cms, updates, maintenance, content, desktop]
 requires_hermes: ">=0.22.5"
 provides_tools:
   - wp_sites

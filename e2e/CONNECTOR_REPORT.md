@@ -1,6 +1,6 @@
 # Connector implementation and real Playground results
 
-Run date: 2026-11-05 UTC (2026-11-06 NZDT). Plugin version **0.1.0**. No production site contacted. No Hermes configuration changed. No git commit or push made.
+Historical run: **2026-11-05 UTC**, connector version **0.1.0**, against disposable WordPress Playground sites. These are recorded results, not a new run or a claim about current upstream versions. Redacted samples remain checked in below.
 
 ## Outcome
 
@@ -59,9 +59,7 @@ The plugin has GPLv2-or-later metadata, text domain matching its slug, WordPress
 4. **Translation cache clearing.** A manual language-pack run exposed that core clears all update transients; without repopulation a following scan could misleadingly show zero counts. Fixed in the service and covered by timestamp checks in the final verifier.
 5. **No formal PHPCS/WPCS scan.** No native PHP is installed. Syntax was genuinely checked with PHP-wasm (`TOKEN_PARSE`, compile pass and actual `php -l`) under both supported runtimes. The code follows WordPress conventions and escaping/sanitization patterns, but this report does not claim a successful PHPCS certification.
 6. **Not exercised:** multisite behavior/uninstall loop, an actual minor-core package upgrade (major-core path was exercised), failing package-download rollback/reactivation fallback, paused extension/recovery mode branches, the copy button in a graphical browser, and the external WordPress MCP Adapter itself. Its discoverability metadata is registered (`show_in_rest`, `public`, `mcp.public`), and the core Abilities list/execution are verified; adapter interoperability still needs its own test.
-7. This worker covered the connector and harness only. The parent/Python worker handles Hermes tools/client/content/draft-post fixtures and validation. No claims about those components are made here.
-
-**Server state at handoff:** Playground is stopped (no `wp-playground-cli server` process remains). Durable scripts can start it again. No production WordPress site was touched.
+7. These runs cover the connector and harness only. Joined Python/connector evidence and current test instructions are documented in [testing](../docs/testing.md); they have a separate scope.
 
 ## Exact recorded REST response samples
 

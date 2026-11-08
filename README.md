@@ -225,8 +225,9 @@ hermes plugins doctor . --ci      # runtime registration checks
 See [architecture](docs/architecture.md), the [connector API](docs/connector-api.md), and
 [testing](docs/testing.md) for dependencies, fixture provenance, recorded evidence and known
 gaps. `scripts/record_fixtures.py` records responses from a disposable WordPress;
-[the Playground harness](e2e/README.md) provides one. Real Desktop rendering and live-vault
-integration remain unverified; unit tests are not a security audit. Host-isolated backend calls
+[the Playground harness](e2e/README.md) provides one. Desktop rendering, the connector
+download and live 1Password item creation were verified manually against a live site (see the
+demo); [testing](docs/testing.md) lists what has not been tried yet. Unit tests are not a security audit. Host-isolated backend calls
 can time out while an update continues: scan and check health before retrying a write.
 
 The Python plugin is MIT licensed. The WordPress connector is GPLv2-or-later.

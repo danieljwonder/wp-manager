@@ -80,9 +80,16 @@ the suite; successful results do not remove the underlying risk of future regres
 
 ## Known gaps
 
-- Actual Hermes Desktop rendering, client/gateway download behavior and live
-  1Password integration are unverified. Strict stubs and swapped subprocess tests
-  do not establish those integrations.
+- Manually verified once, end to end, on Hermes 0.22.5 (Umbrel backend, Hermes
+  Desktop on macOS as a remote client) against one live production site (the
+  recorded demo): Desktop page rendering, **Get connector** download and install,
+  connection-string add with a new 1Password item created through a
+  service-account `op` wrapper, scan, Update all with the post-update health
+  check, and publishing a post from chat through the approval prompt.
+- Not yet verified live: the 1Password desktop-app (biometric) sign-in path,
+  Desktop running against a local Hermes, Windows/Linux Desktop, more than one
+  site at a time, and the Hermes-secret and direct `op://` reference add paths
+  (covered by unit tests only).
 - Host isolation was documented to buffer backend calls and return HTTP 504 after
   60 seconds while a longer update/scan continues. No asynchronous job/poll API is
   implemented. After a timeout, scan and check health before retrying update POSTs.

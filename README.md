@@ -1,4 +1,4 @@
-# wp-manager for Hermes
+# WP Manager for Hermes
 
 Look after your WordPress sites from [Hermes Agent](https://hermes-agent.nousresearch.com/):
 see which plugins, themes, translations and WordPress versions need updating, install updates

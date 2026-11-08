@@ -12,6 +12,12 @@ client reports, staging sites or malware scans.
 > sure your host has a recent backup you know how to restore. After every update run, wp-manager
 > checks the site and tells you plainly if something broke. It cannot undo the update.
 
+![WP Manager in Hermes Desktop: one table for all your sites](docs/screenshots/sites.png)
+
+| Pending updates for a site | Publishing asks first |
+|---|---|
+| ![Site detail with pending plugin and theme updates](docs/screenshots/site-detail.png) | ![Hermes approval prompt before publishing a post](docs/screenshots/approval.png) |
+
 ## What you get
 
 - **Chat tools** (toolset `wp_manager`): `wp_sites`, `wp_site_add`, `wp_site_remove`,

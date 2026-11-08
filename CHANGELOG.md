@@ -7,6 +7,8 @@
   Application Passwords are saved only as a new 1Password item; otherwise use an existing Hermes
   secret or `op://` reference. Requests with `storage: env` are refused before any I/O.
 - Document how to install and sign in the 1Password CLI, and what `op` is used for.
+- Rename the Desktop sidebar item, page title, plugin name and ⌘K commands from "WordPress" to
+  "WP Manager", so the WordPress trademark is only used descriptively.
 
 ## 0.1.2
 

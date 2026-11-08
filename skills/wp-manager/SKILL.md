@@ -17,7 +17,7 @@ creating or editing posts and pages. wp-manager takes **no backups**.
 
 1. On the WordPress site: install and activate *Website Manager: WP Connector for Hermes*, open
    **Tools → Hermes Connector**, click **Create connection for Hermes** and copy the `wpmh1:…` string.
-2. Best: the user pastes that string into **Hermes Desktop → WordPress → Add site**. It contains a
+2. Best: the user pastes that string into **Hermes Desktop → WP Manager → Add site**. It contains a
    password, so steer users away from pasting it into chat. If they already did, call `wp_site_add`
    only after confirming explicit storage: `storage: onepassword` with the user's selected
    `vault_id`, or `storage: existing` with `credential`. There is no .env option: wp-manager never

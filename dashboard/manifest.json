@@ -1,6 +1,6 @@
 {
   "name": "wp-manager",
-  "label": "WordPress",
+  "label": "WP Manager",
   "description": "Backend for the wp-manager Hermes Desktop page (site list, scans, updates, health).",
   "version": "0.1.1",
   "api": "plugin_api.py",

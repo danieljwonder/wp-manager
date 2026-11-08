@@ -24,8 +24,8 @@ const route = byArea('routes')[0]
 const nav = byArea('sidebar.nav')[0]
 const palette = byArea('palette')
 if (!route || route.data.path !== '/wp-manager') throw new Error('route /wp-manager missing')
-if (!nav || nav.data.label !== 'WordPress' || !nav.data.codicon) throw new Error('sidebar nav missing')
-if (!palette.some(p => p.data.label === 'WordPress: Scan all sites')) throw new Error('palette scan command missing')
+if (!nav || nav.data.label !== 'WP Manager' || !nav.data.codicon) throw new Error('sidebar nav missing')
+if (!palette.some(p => p.data.label === 'WP Manager: Scan all sites')) throw new Error('palette scan command missing')
 
 const site = {
   id: 'wp-example', label: 'Example', url: 'https://wp.example.test', admin_url: 'https://wp.example.test/wp-admin/',

@@ -1,4 +1,4 @@
-// wp-manager — Hermes Desktop page for managing WordPress sites.
+// wp-manager — Hermes Desktop page ("WP Manager") for managing WordPress sites.
 // Plain disk-plugin ESM (no build step, no JSX): React and the UI kit are supplied by Desktop.
 // Talks only to this plugin's backend namespace (/api/plugins/wp-manager) through ctx.rest.
 import * as sdk from '@hermes/plugin-sdk'
@@ -160,7 +160,7 @@ function Page({ api }) {
       h(Skeleton, { className: 'h-8 w-full' }), h(Skeleton, { className: 'h-8 w-full' }))
   } else if (sites.isError) {
     body = h(ErrorState, {
-      title: 'WordPress manager unavailable',
+      title: 'WP Manager unavailable',
       description: `${errorText(sites.error)}. The wp-manager plugin must be installed and enabled (plugins.enabled) on the Hermes you are connected to, and its gateway restarted.`
     }, h(Button, { variant: 'outline', onClick: () => sites.refetch() }, 'Retry'))
   } else if (!(data.sites || []).length) {
@@ -181,7 +181,7 @@ function Page({ api }) {
   return h('main', { className: 'flex h-full flex-col gap-4 overflow-auto p-5 text-sm' },
     h('header', { className: 'flex flex-wrap items-center gap-3' },
       h(Codicon, { name: 'globe', size: 18 }),
-      h('h1', { className: 'text-lg font-semibold' }, 'WordPress'),
+      h('h1', { className: 'text-lg font-semibold' }, 'WP Manager'),
       h('span', { className: 'text-xs', style: muted },
         `${(data.sites || []).length} site${(data.sites || []).length === 1 ? '' : 's'}`),
       h('div', { className: 'ml-auto flex flex-wrap gap-2' },
@@ -574,7 +574,7 @@ function ConnectorDownload({ api }) {
 // ------------------------------------------------------------------ registration
 export default {
   id: ID,
-  name: 'WordPress (wp-manager)',
+  name: 'WP Manager (wp-manager)',
   register(ctx) {
     const api = { rest: (path, opts) => ctx.rest(path, opts), os: ctx.os }
 
@@ -599,16 +599,16 @@ export default {
 
     ctx.registerMany([
       { id: 'page', area: ROUTES_AREA, data: { path: ROUTE }, render: () => jsx(Page, { api }) },
-      { id: 'nav', area: SIDEBAR_NAV_AREA, data: { path: ROUTE, label: 'WordPress', codicon: 'globe' } },
+      { id: 'nav', area: SIDEBAR_NAV_AREA, data: { path: ROUTE, label: 'WP Manager', codicon: 'globe' } },
       {
         id: 'open',
         area: PALETTE_AREA,
-        data: { id: 'wp-manager.open', label: 'WordPress: Open sites', keywords: ['wordpress', 'wp', 'sites'], run: () => host.navigate(ROUTE) }
+        data: { id: 'wp-manager.open', label: 'WP Manager: Open sites', keywords: ['wordpress', 'wp', 'sites'], run: () => host.navigate(ROUTE) }
       },
       {
         id: 'scan',
         area: PALETTE_AREA,
-        data: { id: 'wp-manager.scan', label: 'WordPress: Scan all sites', keywords: ['wordpress', 'wp', 'updates', 'scan'], run: () => { void scanAll() } }
+        data: { id: 'wp-manager.scan', label: 'WP Manager: Scan all sites', keywords: ['wordpress', 'wp', 'updates', 'scan'], run: () => { void scanAll() } }
       }
     ])
   }

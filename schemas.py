@@ -20,7 +20,7 @@ SITE_ADD = {
     "description": (
         "Register a WordPress site. The site needs the 'Website Manager: WP Connector for Hermes' plugin and a "
         "WordPress Application Password. Verifies the connection before saving. Prefer asking the user to paste "
-        "the connection string into the Hermes Desktop 'Add site' dialog (WordPress page) rather than into chat. "
+        "the connection string into the Hermes Desktop 'Add site' dialog (WP Manager page) rather than into chat. "
         "Without a connection string, the password must already be stored as a Hermes secret, by default "
         "WPM_<SITE_ID>_APP_PASSWORD (e.g. `hermes secrets onepassword set WPM_MYSITE_APP_PASSWORD op://...`)."
     ),

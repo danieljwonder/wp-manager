@@ -61,7 +61,7 @@ def wp_sites(args: dict) -> dict:
         "count": len(rows),
         "sites": rows,
         "hint": None if rows else "No sites yet. Install the connector plugin on a WordPress site, then add it "
-        "from the Hermes Desktop WordPress page (paste the connection string) or with wp_site_add.",
+        "from the Hermes Desktop WP Manager page (paste the connection string) or with wp_site_add.",
     }
 
 

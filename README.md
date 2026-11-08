@@ -17,7 +17,7 @@ client reports, staging sites or malware scans.
 - **Chat tools** (toolset `wp_manager`): `wp_sites`, `wp_site_add`, `wp_site_remove`,
   `wp_updates_scan`, `wp_update_apply`, `wp_health_check`, `wp_content_list`, `wp_content_get`,
   `wp_content_save`.
-- **A WordPress page in Hermes Desktop**: all your sites in one table (versions, pending updates,
+- **A WP Manager page in Hermes Desktop**: all your sites in one table (versions, pending updates,
   health, last check), with buttons to scan, update, add sites and download the connector.
 - **The connector**: a small WordPress plugin, *Website Manager: WP Connector for Hermes*, that
   you install on each site. It lives in `connector/website-manager-hermes-connector/`.
@@ -42,8 +42,8 @@ hermes plugins install danieljwonder/wp-manager --enable
 Then restart Hermes (or the gateway) so the backend for the Desktop page loads. Hermes only loads
 a plugin's backend when the plugin is in `plugins.enabled`.
 
-In Hermes Desktop, open **Capabilities → Plugins** and switch on **WordPress (wp-manager)**.
-A **WordPress** item appears in the sidebar, and **WordPress: Scan all sites** appears in ⌘K.
+In Hermes Desktop, open **Capabilities → Plugins** and switch on **WP Manager (wp-manager)**.
+A **WP Manager** item appears in the sidebar, and **WP Manager: Scan all sites** appears in ⌘K.
 
 ### Using Desktop with a remote Hermes (Umbrel, a server, a VPS)
 
@@ -56,7 +56,7 @@ there, but the Desktop page must also exist on the computer running Desktop. Ins
 
 ## Connect a site
 
-1. **Install the connector on the site.** In Desktop, the WordPress page's **Get connector**
+1. **Install the connector on the site.** In Desktop, the WP Manager page's **Get connector**
    button saves the plugin zip. On the site, go to **Plugins → Add New → Upload Plugin**, choose
    the zip, then install and activate it.
 2. **Create a connection.** In wp-admin, open **Tools → Hermes Connector** and click **Create
@@ -64,7 +64,7 @@ there, but the Desktop page must also exist on the computer running Desktop. Ins
    [Application Password](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/)
    called "Hermes (website-manager)" and shows a one-time connection string starting with `wpmh1:`.
    Copy it. It is shown only once.
-3. **Add the site in Hermes Desktop.** Open **WordPress → Add site**, paste the connection string
+3. **Add the site in Hermes Desktop.** Open **WP Manager → Add site**, paste the connection string
    and choose where the password is kept: **1Password** (a new item in a vault you pick) or
    **Existing Hermes secret / 1Password reference**. Then click **Connect**. Hermes checks the
    connection, saves the site, and tells you where the password is kept.

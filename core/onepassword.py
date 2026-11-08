@@ -83,4 +83,4 @@ def create(binary: str, vault_id: str, site: dict, password: str) -> tuple[dict,
     readback = _run(binary, ["read", "--no-newline", ref])
     if not hmac.compare_digest(readback.encode(), password.encode()):
         raise CredentialError("1Password read-back mismatch; registry unchanged. Remove the newly created item manually")
-    return {"op": ref}, f"stored in 1Password vault {vault['name']} ({ref})"
+    return {"op": ref}, f"stored in 1Password vault {vault['name']}"

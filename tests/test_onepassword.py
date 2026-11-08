@@ -82,7 +82,8 @@ class OnePassword(unittest.TestCase):
         submodule('core.client').set_transport(auth)
         result = service.add_site(self.args(), actor='desktop')
         self.assertEqual(registry.list_sites()[0]['credential'], {'op': REF})
-        self.assertIn('1Password vault Test vault', result['credential_storage'])
+        self.assertEqual('stored in 1Password vault Test vault', result['credential_storage'])
+        self.assertNotIn('op://', result['credential_storage'])
         self.assert_clean(result)
         self.assertFalse((self.env.home / '.env').exists())
 

@@ -12,6 +12,8 @@ client reports, staging sites or malware scans.
 > sure your host has a recent backup you know how to restore. After every update run, wp-manager
 > checks the site and tells you plainly if something broke. It cannot undo the update.
 
+**Demo (88 s):** [watch on X](https://x.com/danielwonder/status/2119334033226088695)
+
 ![WP Manager in Hermes Desktop: one table for all your sites](docs/screenshots/sites.png)
 
 | Pending updates for a site | Publishing asks first |

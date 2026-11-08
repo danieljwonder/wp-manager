@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.3
+
+- Remove the `.env` storage option and the plugin's `.env` writer. wp-manager no longer reads or
+  writes the Hermes `.env` file (plugin catalog rule 11). Connection strings and plain
+  Application Passwords are saved only as a new 1Password item; otherwise use an existing Hermes
+  secret or `op://` reference. Requests with `storage: env` are refused before any I/O.
+- Document how to install and sign in the 1Password CLI, and what `op` is used for.
+
 ## 0.1.2
 
 - Add explicit Desktop connection-string storage choice: create a new 1Password item in a

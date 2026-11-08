@@ -68,41 +68,13 @@ class Storage(unittest.TestCase):
         self.assertNotIn(SECRET, path.read_text())
         self.assertNotIn("password", json.loads(path.read_text())["sites"][0])
 
-    def test_env_writer_only_touches_its_key(self):
-        env_path = self.env.home / ".env"
-        env_path.write_text("OPENAI_API_KEY=keep-me\nWPM_A_APP_PASSWORD=old\nexport OTHER=1\n")
-        os.chmod(env_path, 0o644)
-        credentials.set_env_writer(None)
-        with mock.patch.object(credentials, "_hermes_env_writer", return_value=None):
-            where = credentials.store_in_env("WPM_A_APP_PASSWORD", SECRET)
-        text = env_path.read_text()
-        self.assertIn("OPENAI_API_KEY=keep-me\n", text)
-        self.assertIn("export OTHER=1\n", text)
-        self.assertIn(f"WPM_A_APP_PASSWORD={SECRET.replace(' ', '')}\n", text)
-        self.assertEqual(text.count("WPM_A_APP_PASSWORD"), 1)
-        self.assertEqual(env_path.stat().st_mode & 0o777, 0o600)
-        self.assertNotIn(SECRET, where)
-
-    def test_env_writer_targets_the_resolved_home_only(self):
-        """Hermes's own writer is used only when it would write this home's .env."""
-        credentials.set_env_writer(None)
-        writer = credentials._hermes_env_writer()
-        try:
-            from hermes_cli.config import get_env_path
-        except ImportError:
-            self.assertIsNone(writer)
-        else:
-            if get_env_path().resolve() != (self.env.home / ".env").resolve():
-                self.assertIsNone(writer)
-        credentials.store_in_env("WPM_B_APP_PASSWORD", SECRET)
-        self.assertIn("WPM_B_APP_PASSWORD=", (self.env.home / ".env").read_text())
-
-    def test_env_writer_refuses_other_keys(self):
-        for name in ("OPENAI_API_KEY", "WPM_A_APP_PASSWORD\nX=1", "WPM__APP_PASSWORDS"):
-            with self.assertRaises(credentials.CredentialError):
-                credentials.store_in_env(name, SECRET)
-        with self.assertRaises(credentials.CredentialError):
-            credentials.store_in_env("WPM_A_APP_PASSWORD", "abc\ndef")
+    def test_no_env_file_writer(self):
+        """Catalog rule 11: credentials come through Hermes; the plugin has no .env writer."""
+        for name in ("store_in_env", "set_env_writer", "_builtin_env_write", "_hermes_env_writer"):
+            self.assertFalse(hasattr(credentials, name), name)
+        src = Path(credentials.__file__).read_text()
+        self.assertNotIn("save_env_value", src)
+        self.assertNotIn("env_file(", src)
 
 
 class Credentials(unittest.TestCase):

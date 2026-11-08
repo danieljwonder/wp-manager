@@ -30,6 +30,8 @@ client reports, staging sites or malware scans.
 - WordPress 6.5+ on PHP 7.4+, served over **https** (plain http is refused unless you opt in for
   that site; `localhost` is fine for testing).
 - An administrator account on each site.
+- Optional, for the **1Password** storage option: the 1Password CLI (`op`) installed and signed in
+  on the machine where Hermes runs. See [Set up the 1Password CLI](#set-up-the-1password-cli).
 
 ## Install
 
@@ -63,9 +65,9 @@ there, but the Desktop page must also exist on the computer running Desktop. Ins
    called "Hermes (website-manager)" and shows a one-time connection string starting with `wpmh1:`.
    Copy it. It is shown only once.
 3. **Add the site in Hermes Desktop.** Open **WordPress → Add site**, paste the connection string
-   and explicitly choose **1Password**, **Existing Hermes secret / 1Password reference**, or
-   **Store locally in Hermes .env**, then click **Connect**. Hermes checks the connection, saves the site, and tells you where the
-   password was stored.
+   and choose where the password is kept: **1Password** (a new item in a vault you pick) or
+   **Existing Hermes secret / 1Password reference**. Then click **Connect**. Hermes checks the
+   connection, saves the site, and tells you where the password is kept.
 
 Please paste connection strings into the Desktop dialog, not into chat. A string pasted into chat
 ends up in the conversation history.
@@ -120,10 +122,29 @@ docs for [1Password](https://hermes-agent.nousresearch.com/docs/user-guide/secre
 
 - A direct 1Password reference per site (`op://Vault/Item/field`). Hermes runs the `op` CLI on the
   Hermes machine whenever it needs the password. The `op_binary` setting names the program.
-- **Store in .env**, for people without a password manager. Only when you explicitly choose
-  "Store in .env", the password is written to the Hermes `.env` file as
-  `WPM_<SITE_ID>_APP_PASSWORD`. The file is set to permissions `0600`. Only that one line is added
-  or replaced.
+
+**No password manager?** wp-manager never writes the Hermes `.env` file itself. If you want to
+keep the password there, add the line yourself (`WPM_<SITE_ID>_APP_PASSWORD=...` in
+`$HERMES_HOME/.env`), restart Hermes, then add the site with **Enter details → Hermes secret**.
+Hermes reads it like any other secret.
+
+### Set up the 1Password CLI
+
+The **1Password** option in **Add site** needs the 1Password CLI on the machine (or container)
+where Hermes runs. Hermes's own 1Password integration (`hermes secrets onepassword ...`) can only
+*read* secrets that you map by hand. Creating a new item for a site goes through the CLI.
+
+1. Install `op` by following 1Password's
+   [Get started with 1Password CLI](https://developer.1password.com/docs/cli/get-started/) guide.
+2. Sign it in for the user Hermes runs as:
+   - **On your own computer:** turn on the 1Password desktop app integration (or run
+     `op signin`), so `op vault list` works in a terminal.
+   - **On a server, Umbrel or Docker:** create a
+     [1Password service account](https://developer.1password.com/docs/service-accounts/) with
+     access to one vault (for example "Agents"). Point the `op_binary` setting at a small wrapper
+     script that supplies the token to `op`. Keep the token in Hermes secrets, not in settings.
+3. Check it: `op vault list` (or your wrapper with `vault list`) shows the vault you want.
+4. In Desktop, open **Add site**. If the vault list doesn't load, click **Retry vault access**.
 
 Passwords never appear in tool results, logs, `state.json`, the action log or error messages.
 
@@ -178,9 +199,11 @@ in `config.yaml`:
 ## What gets sent where
 
 wp-manager talks only to the WordPress sites you add, using the WordPress REST API with the
-site's Application Password. It also uses the `op` CLI for `op://` references, vault metadata,
-and explicitly selected 1Password item creation.
-It makes no other network calls and sends no telemetry. The connector only contacts WordPress.org's
+site's Application Password. It also runs the `op` CLI (the `op_binary` setting) on the Hermes
+machine for `op://` references, vault names and explicitly selected 1Password item creation. That
+CLI talks to 1Password under your own account or service account.
+It reads and writes only its own folder, `$HERMES_HOME/wp-manager/`, and never reads or writes
+the Hermes `.env` file. It makes no other network calls and sends no telemetry. The connector only contacts WordPress.org's
 normal update service.
 
 ## Development

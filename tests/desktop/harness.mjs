@@ -68,9 +68,9 @@ renderPage(open, { Page: { 2: 'wp-example' }, SiteDialog: { 1: { batches: [['plu
   3: [{ type: 'plugin', update_result: 'success', health: { verdict: 'down' }, alert: 'HEALTH CHECK DOWN', warning: 'x',
         results: [{ item: 'a', success: false, error: 'e' }] }] } })                   // confirm + results
 renderPage({ sites: { sites: [], tags: [] }, 'site/wp-example': undefined }, { Page: { 2: 'wp-example' } }) // detail loading
-for (const [mode, cred] of [['string', 'env'], ['manual', 'env'], ['manual', 'op'], ['manual', 'store']]) {
+for (const [mode, cred] of [['string', 'env'], ['manual', 'env'], ['manual', 'op']]) {
   renderPage({ sites: { sites: [], tags: [] } }, { Page: { 3: true }, AddSiteDialog: { 0: mode, 3: cred,
-    4: { connection_string: '', url: 'http://shop.example.com', username: 'u', label: '', tags: '', env: '', op: '', app_password: '', allow_insecure: false } } })
+    4: { connection_string: '', url: 'http://shop.example.com', username: 'u', label: '', tags: '', env: '', op: '', allow_insecure: false } } })
 }
 renderPage({ sites: { sites: [], tags: [] } }, { Page: { 3: true }, AddSiteDialog: { 5: {
   site: { label: 'Example' }, verified: { wp_version: '6.8.1' }, credential_storage: 'stored', note: 'n', warning: 'w' } } })

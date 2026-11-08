@@ -9,7 +9,7 @@ const api = { registerMany: xs => contributions.push(...xs), register: x => cont
 const route = contributions.find(c => c.area === 'routes')
 const V = 'a'.repeat(26)
 const form = { connection_string: 'wpmh1:fixture', label: '', tags: '', url: '', username: '',
-  env: 'WPM_TEST_APP_PASSWORD', op: 'op://Private/Test/password', app_password: '', allow_insecure: false }
+  env: 'WPM_TEST_APP_PASSWORD', op: 'op://Private/Test/password', allow_insecure: false }
 let renders = 0
 function render(storage = '', vault = '', data = { available: true, vaults: [{ id: V, name: 'Test vault' }] }, cred = 'env', result = null) {
   for (const k of ['nodes', 'text', 'mutations', 'queries']) s.calls[k].length = 0
@@ -26,11 +26,9 @@ await mut.mutationFn()
 assert.deepEqual(s.calls.rest.at(-1)[1].body, { label: undefined, tags: undefined,
   connection_string: 'wpmh1:fixture', storage: 'onepassword', vault_id: V })
 assert.equal(render('onepassword', V, { available: false, vaults: [] }).props.disabled, true)
-assert.ok(s.calls.text.some(t => t.includes('1Password unavailable')))
-assert.equal(render('env').props.disabled, false)
-await s.calls.mutations.at(-1).mutationFn()
-assert.equal(s.calls.rest.at(-1)[1].body.storage, 'env')
-assert.equal(s.calls.rest.at(-1)[1].body.vault_id, undefined)
+assert.ok(s.calls.text.some(t => t.includes('1Password CLI unavailable')))
+assert.equal(render('env').props.disabled, true, 'no .env storage option')
+assert.ok(!s.calls.text.some(t => /\.env/.test(t)), 'dialog never offers .env storage')
 for (const cred of ['env', 'op']) {
   assert.equal(render('existing', '', undefined, cred).props.disabled, false)
   await s.calls.mutations.at(-1).mutationFn()
@@ -40,4 +38,4 @@ for (const cred of ['env', 'op']) {
 }
 render('', '', undefined, 'env', { site: { label: 'Test' }, verified: {}, credential_storage: 'stored in 1Password vault Test vault' })
 assert.ok(s.calls.text.includes('Password: stored in 1Password vault Test vault'))
-console.log(`OK ${renders} renders — explicit storage, vault gating, unavailable state, payloads and actual storage`)
+console.log(`OK ${renders} renders — explicit storage, no .env, vault gating, unavailable state, payloads and actual storage`)

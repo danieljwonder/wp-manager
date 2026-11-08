@@ -20,10 +20,10 @@ creating or editing posts and pages. wp-manager takes **no backups**.
 2. Best: the user pastes that string into **Hermes Desktop → WordPress → Add site**. It contains a
    password, so steer users away from pasting it into chat. If they already did, call `wp_site_add`
    only after confirming explicit storage: `storage: onepassword` with the user's selected
-   `vault_id`, `storage: existing` with `credential`, or `storage: env` when the user opts into
-   local .env. Never repeat the string or any part of it back. Prefer Desktop for vault selection.
-   New 1Password items require approval, are ID-reference/read-back/WordPress-auth verified before
-   registry save, and never fall back to .env. A failed attempt may leave a new item for manual
+   `vault_id`, or `storage: existing` with `credential`. There is no .env option: wp-manager never
+   writes the .env file. Never repeat the string or any part of it back. Prefer Desktop for vault
+   selection. New 1Password items need the op CLI (README: Set up the 1Password CLI), require
+   approval, and are ID-reference/read-back/WordPress-auth verified before registry save. A failed attempt may leave a new item for manual
    removal. Existing sites are not migrated. Report the returned `credential_storage` accurately.
 3. Users with a password manager can store the Application Password as a Hermes secret first
    (`hermes secrets onepassword set WPM_<SITE_ID>_APP_PASSWORD op://Vault/Item/password`) and call

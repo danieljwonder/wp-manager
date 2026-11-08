@@ -100,7 +100,6 @@ class Env:
         self.secrets = dict(secrets or {})
         self.transport = transport or ReplayTransport()
         self.settings = dict(settings or {})
-        self.env_writes = []
         self.op_calls = []
 
     def start(self):
@@ -108,17 +107,10 @@ class Env:
         submodule("core.client").set_transport(self.transport)
         creds = submodule("core.credentials")
         creds.set_secret_getter(lambda name: self.secrets.get(name))
-        creds.set_env_writer(self._env_write)
         creds.set_op_runner(self._op_run)
         submodule("core.settings").set_getter(lambda key, default=None: self.settings.get(key, default))
         submodule("approval").set_cron_probe(None)
         return self
-
-    def _env_write(self, name, value):
-        self.env_writes.append(name)
-        self.secrets[name] = value
-        creds = submodule("core.credentials")
-        creds._builtin_env_write(name, value)  # exercise the real file writer in the temp home
 
     def _op_run(self, binary, ref):
         self.op_calls.append((binary, ref))
@@ -129,7 +121,6 @@ class Env:
         submodule("core.client").set_transport(None)
         creds = submodule("core.credentials")
         creds.set_secret_getter(None)
-        creds.set_env_writer(None)
         creds.set_op_runner(None)
         submodule("core.settings").set_getter(None)
         submodule("core.redact").forget_all()

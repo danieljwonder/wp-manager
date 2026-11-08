@@ -33,13 +33,15 @@ SITE_ADD = {
         "credential": {
             "type": "object",
             "description": 'Where the Application Password lives: {"env": "WPM_<ID>_APP_PASSWORD"} (a Hermes '
-                           'secret: .env, 1Password, Bitwarden...) or {"op": "op://Vault/Item/field"}.',
+                           'secret: 1Password, Bitwarden, command helper, or a .env entry the user added) or {"op": "op://Vault/Item/field"}.',
             "properties": {"env": {"type": "string"}, "op": {"type": "string"}},
         },
         "connection_string": {"type": "string",
                               "description": "wpmh1:... string from Tools → Hermes Connector. Never repeat it back."},
-        "storage": {"type": "string", "enum": ["onepassword", "existing", "env"],
-                    "description": "Explicit choice required with a connection string. Prefer Desktop for secret input."},
+        "storage": {"type": "string", "enum": ["onepassword", "existing"],
+                    "description": "Explicit choice required with a connection string: onepassword (new item in "
+                                   "vault_id) or existing (with credential). wp-manager never writes .env. "
+                                   "Prefer Desktop for secret input."},
         "vault_id": {"type": "string", "description": "Explicit 1Password vault ID for new item creation."},
         "allow_insecure": {"type": "boolean",
                            "description": "Allow plain http:// (password sent unencrypted). Default false."},

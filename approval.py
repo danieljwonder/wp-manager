@@ -102,8 +102,8 @@ def _decide_add(args: dict) -> Optional[tuple[str, str]]:
     ref = site["credential"]
     if plan["storage"] == "onepassword":
         return (f"wp-manager:credential-store:{site['id']}",
-                f"Create a new 1Password item in vault {plan['vault_id']} for {site['url']} and verify the WordPress connection. No .env fallback is used.")
-    if plan["store_env"] or ref.get("env") == registry.default_env_name(site["id"]):
+                f"Create a new 1Password item in vault {plan['vault_id']} for {site['url']} and verify the WordPress connection.")
+    if ref.get("env") == registry.default_env_name(site["id"]):
         return None
     return (f"wp-manager:credential:{site['id']}",
             f"Connect {site['url']} using the existing secret {registry.credential_label(ref)}. "

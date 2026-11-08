@@ -49,8 +49,6 @@ class EverythingClean(unittest.TestCase):
         blobs = list(self.outputs) + self.log_records
         files = self.env.all_files_text()
         for name, text in files.items():
-            if name == ".env":
-                continue  # the one place the user asked us to store it
             blobs.append(text)
         basic = b64_basic()
         for blob in blobs:
@@ -59,7 +57,10 @@ class EverythingClean(unittest.TestCase):
             self.assertNotIn("wpmh1:", blob.replace("wpmh1:[redacted]", ""))
 
     def test_full_workflow_never_leaks(self):
-        r = self.run_tool(tools.wp_site_add, {"connection_string": connection_string(), "id": "wp-example", "storage": "env"})
+        self.env.secrets["WPM_WP_EXAMPLE_APP_PASSWORD"] = SECRET
+        r = self.run_tool(tools.wp_site_add, {"connection_string": connection_string(), "id": "wp-example",
+                                              "storage": "existing",
+                                              "credential": {"env": "WPM_WP_EXAMPLE_APP_PASSWORD"}})
         self.assertTrue(r["success"], r)
         self.run_tool(tools.wp_sites, {})
         self.run_tool(tools.wp_updates_scan, {"refresh": True})

@@ -60,9 +60,6 @@ def actions_file() -> Path:
     return data_dir() / "actions.jsonl"
 
 
-def env_file() -> Path:
-    return hermes_home() / ".env"
-
 
 def write_private(path: Path, text: str) -> None:
     """Atomically replace ``path`` with ``text``, mode 0600."""

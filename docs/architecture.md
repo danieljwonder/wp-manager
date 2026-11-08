@@ -36,15 +36,14 @@ Paths are resolved through Hermes's active home, not a fixed installation path:
 
 Credentials resolve through Hermes secrets using `WPM_<SITE_ID>_APP_PASSWORD`, or
 through a direct `op://Vault/Item/field` reference using the configured trusted
-`op_binary`. Explicit local storage writes only the selected `WPM_*_APP_PASSWORD`
-key in the resolved home's `.env` and tightens its permissions to `0600`. This can
-change a shared deployment's existing file mode; check access requirements first.
-The Hermes writer is used only when its target matches that resolved file.
+`op_binary`. wp-manager never reads or writes the Hermes `.env` file (catalog
+rule 11); a user who wants `.env` storage adds the `WPM_*_APP_PASSWORD` line
+themselves and Hermes resolves it as a normal secret.
 
 Explicit 1Password creation enumerates vault metadata, creates a new Login item
 with password JSON on stdin, compares an ID-based read-back exactly, then
 authenticates against the original validated WordPress URL before registry save.
-It does not overwrite existing items or fall back to `.env`. Verification failure
+It does not overwrite existing items. Verification failure
 can leave a new vault item requiring manual removal. Removing a site does not
 revoke its Application Password or delete its secret.
 

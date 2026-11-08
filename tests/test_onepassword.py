@@ -67,7 +67,7 @@ class OnePassword(unittest.TestCase):
             self.assertNotIn(SECRET, text)
             self.assertNotIn(SECRET.replace(' ', ''), text)
             self.assertNotIn(connection_string(), text)
-        self.assertEqual(self.env.env_writes, [])
+        self.assertFalse((self.env.home / ".env").exists())
 
     def test_create_read_auth_commit_order_and_privacy(self):
         transport = self.env.transport

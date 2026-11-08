@@ -134,31 +134,31 @@ def plan_add(args: dict) -> dict:
     tags = registry.check_tags(args.get("tags"))
     ref = registry.check_credential_ref(args["credential"]) if args.get("credential") else None
     password = None
-    store_env = False
     if ref is None:
         ref = {"env": registry.default_env_name(site_id)}
         if conn:
             password = conn["app_password"]
-            store_env = True
         elif args.get("app_password"):
             password = credentials._clean_password(args["app_password"])  # noqa: SLF001
             redact.remember(password, username)
-            store_env = True
     storage = args.get("storage")
-    if storage not in (None, "onepassword", "existing", "env"):
-        raise ServiceError("storage must be onepassword, existing or env")
+    if storage not in (None, "onepassword", "existing"):
+        raise ServiceError("storage must be onepassword or existing (wp-manager never writes the .env file)")
     if (conn or args.get("app_password")) and not storage and not args.get("credential"):
-        raise ServiceError("choose password storage explicitly: onepassword, existing or env")
+        raise ServiceError("choose password storage explicitly: onepassword (new item in a vault) or existing "
+                           "(a Hermes secret or op:// reference you already set up)")
     if storage == "existing" and not args.get("credential"):
         raise ServiceError("existing storage requires a credential reference")
-    if storage in ("env", "onepassword") and args.get("credential"):
+    if storage == "onepassword" and args.get("credential"):
         raise ServiceError("new storage cannot be combined with an existing credential reference")
     if storage == "onepassword":
         if not password:
             raise ServiceError("1Password creation requires a connection string or Application Password")
         if not isinstance(args.get("vault_id"), str) or not onepassword.ID_RE.fullmatch(args["vault_id"]):
             raise ServiceError("choose an explicit 1Password vault")
-        store_env = False
+    elif args.get("app_password") and not args.get("credential"):
+        raise ServiceError("a plain Application Password can only be saved as a new 1Password item; "
+                           "otherwise store it as a Hermes secret first and pass its name")
     for s in registry.list_sites():
         if s["id"] == site_id:
             raise ServiceError(f"a site with id {site_id!r} already exists; pass a different id")
@@ -167,7 +167,6 @@ def plan_add(args: dict) -> dict:
     return {
         "site": {"id": site_id, "label": label, "url": url, "username": username, "tags": tags,
                  "credential": ref, "allow_insecure": allow_insecure},
-        "store_env": store_env,
         "storage": storage,
         "vault_id": args.get("vault_id"),
         "_password": password,
@@ -202,12 +201,7 @@ def add_site(args: dict, *, actor: str) -> dict:
     if not status.get("wp_version") and not status.get("connector_version"):
         raise ServiceError("the site answered, but not with a connector status; is the connector up to date?",
                            kind="bad_response")
-    if plan["store_env"]:
-        try:
-            storage = credentials.store_in_env(site["credential"]["env"], password)
-        except credentials.CredentialError as exc:
-            raise ServiceError(f"connected, but the password could not be stored: {exc}", kind="credential") from exc
-    elif storage is None:
+    if storage is None:
         storage = f"using existing {registry.credential_label(site['credential'])} (nothing was written)"
     saved = registry.add_site(site)
     state.update(site["id"], status=status, last_scan=None, last_error=None)

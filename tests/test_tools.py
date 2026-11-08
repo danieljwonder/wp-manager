@@ -33,7 +33,7 @@ class Sites(Base):
         self.assertEqual(r["site"]["id"], "wp-example")
         self.assertEqual(r["verified"]["wp_version"], "6.8.1")
         self.assertIn("nothing was written", r["credential_storage"])
-        self.assertEqual(self.env.env_writes, [])
+        self.assertFalse((self.env.home / ".env").exists())
         auth = [c for c in self.t.calls if c.headers.get("Authorization")]
         self.assertTrue(auth, "status call must be authenticated")
         r = call(tools.wp_sites)
@@ -47,24 +47,25 @@ class Sites(Base):
         self.assertIn("hermes secrets onepassword set WPM_WP_EXAMPLE_APP_PASSWORD", r["error"])
         self.assertEqual(self.t.network_calls, 0)
 
-    def test_add_with_connection_string_stores_env_only_when_selected(self):
-        r = call(tools.wp_site_add, {"connection_string": connection_string(), "id": "wp-example", "storage": "env"})
-        self.assertTrue(r["success"], r)
-        self.assertEqual(self.env.env_writes, ["WPM_WP_EXAMPLE_APP_PASSWORD"])
-        self.assertIn("WPM_WP_EXAMPLE_APP_PASSWORD", r["credential_storage"])
-        dotenv = (self.env.home / ".env").read_text()
-        self.assertIn("WPM_WP_EXAMPLE_APP_PASSWORD=", dotenv)
-        self.assertEqual((self.env.home / ".env").stat().st_mode & 0o777, 0o600)
-        sites_json = (self.env.home / "wp-manager" / "sites.json").read_text()
-        self.assertNotIn(SECRET.replace(" ", ""), sites_json)
-        self.assertEqual(json.loads(sites_json)["sites"][0]["credential"], {"env": "WPM_WP_EXAMPLE_APP_PASSWORD"})
+    def test_env_storage_is_refused_without_io(self):
+        """wp-manager never writes the Hermes .env (catalog rule 11)."""
+        for args in ({"connection_string": connection_string(), "id": "wp-example", "storage": "env"},
+                     {"connection_string": connection_string(), "id": "wp-example"},
+                     {"url": BASE, "username": USER, "id": "wp-example", "app_password": SECRET}):
+            r = call(tools.wp_site_add, args)
+            self.assertFalse(r["success"], r)
+            self.assertNotIn(SECRET, json.dumps(r))
+        self.assertEqual(self.t.network_calls, 0)
+        self.assertEqual(self.env.op_calls, [])
+        self.assertFalse((self.env.home / ".env").exists())
+        self.assertFalse((self.env.home / "wp-manager" / "sites.json").exists())
 
     def test_connection_string_with_explicit_ref_is_not_stored(self):
         self.env.secrets["WPM_WP_EXAMPLE_APP_PASSWORD"] = SECRET
         r = call(tools.wp_site_add, {"connection_string": connection_string(), "id": "wp-example",
                                      "credential": {"env": "WPM_WP_EXAMPLE_APP_PASSWORD"}})
         self.assertTrue(r["success"], r)
-        self.assertEqual(self.env.env_writes, [])
+        self.assertFalse((self.env.home / ".env").exists())
         self.assertIn("not stored", r["note"])
 
     def test_add_with_op_ref(self):

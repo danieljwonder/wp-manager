@@ -24,7 +24,7 @@ can produce unrelated scanner findings. Validation imports/registers the plugin;
 it is not an instruction to install or enable it in a running Hermes instance.
 
 Tests cover tool inputs/results, approval scope and unattended guards, registry
-permissions, secret redaction, same-origin redirects, resolved-home `.env` writes,
+permissions, secret redaction, same-origin redirects, refusal of `.env` storage,
 1Password subprocess ordering/failures, update-result normalization, API contracts
 and Desktop loading/storage states. Node rendering uses strict SDK stubs, **not**
 a running Hermes Desktop application. Security-scan success is not a security audit.
@@ -73,9 +73,8 @@ before promoting a recording into tracked fixtures; never commit credentials.
   one hook. PHP-wasm syntax/compile and actual `php -l` checks passed for all ten
   connector PHP files on both recorded runtimes; no PHPCS/WPCS certification is claimed.
 
-A prior isolated-home test exposed an `.env` writer targeting the wrong Hermes
-home. The implementation now delegates only when writer targets match, with a
-resolved-home regression test. Initial detail-loading tests likewise reproduced
+The `.env` writer was removed in 0.1.3; a regression test asserts the module has
+no writer and that `.env` storage requests are refused with no I/O. Initial detail-loading tests likewise reproduced
 an incorrect all-clear message before the 0.1.1 fix. These regressions remain in
 the suite; successful results do not remove the underlying risk of future regressions.
 
@@ -97,5 +96,5 @@ the suite; successful results do not remove the underlying risk of future regres
 - Playground's stale `.maintenance` worker state and raw PHP-wasm certificate-probe
   failures are recorded in the connector results, not suppressed as successful
   production responses. Translation offers are not deterministic on a fresh site.
-- Catalog admission for direct `op read` and explicit `.env` storage still needs
-  review; passing local validation is not catalog approval.
+- Catalog admission for direct `op` CLI use (reads, vault metadata, item creation)
+  still needs review; passing local validation is not catalog approval.

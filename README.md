@@ -105,6 +105,11 @@ wp-manager creates a **new** Login item (never overwrites an item), passes the p
 JSON on subprocess stdin, reads `op://<vault ID>/<item ID>/password` back, checks exact equality,
 and authenticates against the original validated WordPress address before saving the site.
 It stores only that ID-based reference in the registry. CLI errors/output never enter errors or logs.
+`op` (or your wrapper) runs with a minimal environment, never Hermes's: `PATH`, `HOME`, `USER`,
+temp and XDG directories, `OP_SESSION_*`, the 1Password Connect/account variables and
+`OP_SERVICE_ACCOUNT_TOKEN` (read through Hermes secrets when it isn't already set). Provider API
+keys and other secrets are not passed. A wrapper that relies on other environment variables must
+give them defaults.
 If CLI access is unavailable this option is disabled, with Retry. Creation, read-back or WordPress
 authentication failure leaves the registry unchanged and **never falls back to .env**. A failed
 attempt may leave a newly created item in 1Password; remove that item manually before retrying.
@@ -163,9 +168,12 @@ Passwords never appear in tool results, logs, `state.json`, the action log or er
   rule is `wp-manager:update:<site>`.
 - **Publishing asks first.** New posts and pages are saved as drafts. Publishing, or changing a
   post or page that is already live, asks for approval (`wp-manager:publish:<site>`).
-- **Pointing a new site at an existing secret asks first.** This covers a 1Password reference or
-  another site's secret name, because that sends the secret to the new address
-  (`wp-manager:credential:<site>`).
+- **Adding a site from chat always asks first.** The prompt shows the site address and the secret
+  that will be sent there, including the site's own default `WPM_<SITE_ID>_APP_PASSWORD` (which
+  can be left over from a removed site) (`wp-manager:credential:<site>`). Adding a site with
+  `allow_insecure` gets its own prompt and rule (`wp-manager:credential:<site>:insecure`).
+- **Site ids that would share a secret name are refused.** `my-blog` and `my--blog` both map to
+  `WPM_MY_BLOG_APP_PASSWORD`, so the second is rejected rather than handed the first one's password.
 - **Creating a new 1Password item from a tool asks first** (`wp-manager:credential-store:<site>`)
   and is blocked unattended. In Desktop, choosing storage/vault and pressing Connect is approval.
 - **With approval required (the default), unattended updates and publishing are blocked.**

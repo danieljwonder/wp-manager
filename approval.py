@@ -4,9 +4,11 @@ Gated (``{"action": "approve", "rule_key": ...}``):
   * ``wp_update_apply`` — always (rule ``wp-manager:update:<site>``);
   * ``wp_content_save`` — when it publishes, or edits an item that is already published
     (rule ``wp-manager:publish:<site>``); drafts and pending items go through;
-  * ``wp_site_add`` — when it binds a site to an *existing* secret other than the site's own
-    default ``WPM_<ID>_APP_PASSWORD`` (an ``op://`` reference or another ``WPM_*`` name), because that
-    sends the secret to the new URL (rule ``wp-manager:credential:<site>``).
+  * ``wp_site_add`` — always: adding a site sends an existing secret (the site's default
+    ``WPM_<ID>_APP_PASSWORD`` included) to a URL the model chose (rule
+    ``wp-manager:credential:<site>``), or creates a new 1Password item
+    (``wp-manager:credential-store:<site>``). ``allow_insecure`` adds an ``:insecure`` suffix so
+    an "always allow" for the https site never covers a plain-http one.
 
 Every other tool is exempt. Invalid arguments are not gated: the tool itself rejects them without
 any network call. In unattended runs (cron, webhooks) a gated call is blocked — fail closed —
@@ -97,17 +99,24 @@ def _decide_save(args: dict) -> Optional[tuple[str, str]]:
 
 
 def _decide_add(args: dict) -> Optional[tuple[str, str]]:
+    """Every agent-driven site add asks first. The only secret a tool call can create is a new
+    1Password item (its own prompt); any other credential already exists (the site's default
+    ``WPM_<ID>_APP_PASSWORD`` included, which may be left over from a removed site), and adding
+    the site sends it to the URL the model chose."""
     plan = service.plan_add(args)
     site = plan["site"]
     ref = site["credential"]
+    insecure = site["url"].startswith("http://") and bool(site.get("allow_insecure"))
+    warn = (" The site uses plain http:// (allow_insecure), so the Application Password crosses the "
+            "network unencrypted.") if insecure else ""
+    suffix = ":insecure" if insecure else ""
     if plan["storage"] == "onepassword":
-        return (f"wp-manager:credential-store:{site['id']}",
-                f"Create a new 1Password item in vault {plan['vault_id']} for {site['url']} and verify the WordPress connection.")
-    if ref.get("env") == registry.default_env_name(site["id"]):
-        return None
-    return (f"wp-manager:credential:{site['id']}",
+        return (f"wp-manager:credential-store:{site['id']}{suffix}",
+                f"Create a new 1Password item in vault {plan['vault_id']} for {site['url']} and verify "
+                f"the WordPress connection.{warn}")
+    return (f"wp-manager:credential:{site['id']}{suffix}",
             f"Connect {site['url']} using the existing secret {registry.credential_label(ref)}. "
-            "That secret will be sent to this site as its WordPress Application Password.")
+            f"That secret will be sent to this site as its WordPress Application Password.{warn}")
 
 
 _DECIDERS = {"wp_update_apply": _decide_update, "wp_content_save": _decide_save, "wp_site_add": _decide_add}

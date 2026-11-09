@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.4
+
+Security fixes from catalog review.
+
+- `wp_site_add` from chat now always asks for approval, showing the site URL and the secret that
+  will be sent to it. Previously a site using its own default `WPM_<SITE_ID>_APP_PASSWORD` skipped
+  the prompt, so a colliding id, or removing a site and re-adding its id with a different URL,
+  could send an existing Application Password to a model-chosen URL without a prompt.
+- Refuse site ids whose default secret name collides with an existing site's (`my-blog` and
+  `my--blog` both map to `WPM_MY_BLOG_APP_PASSWORD`), in Desktop and chat alike.
+- `allow_insecure: true` gets its own approval rule (`wp-manager:credential:<site>:insecure`), so
+  "always allow" for an https site never covers a plain-http one.
+- The 1Password CLI (and any `op_binary` wrapper) now runs with a minimal allowlisted environment
+  (PATH, HOME, USER, temp/XDG dirs, `OP_SESSION_*`, 1Password Connect/account variables,
+  `OP_SERVICE_ACCOUNT_TOKEN`) instead of inheriting Hermes's, which holds every provider key. The
+  token is read through Hermes secrets when it isn't in the environment.
+- Align `core.VERSION`, `dashboard/manifest.json` and the bundled skill with the plugin version.
+
 ## 0.1.3
 
 - Remove the `.env` storage option and the plugin's `.env` writer. wp-manager no longer reads or

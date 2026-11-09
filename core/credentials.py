@@ -40,6 +40,35 @@ def _default_secret_getter(name: str) -> Optional[str]:
     return get_secret(name)
 
 
+# What the 1Password CLI needs and nothing else: the Hermes process environment holds every
+# provider credential, so `op` (and any wrapper the user points op_binary at) never inherits it.
+# Mirrors Hermes's own 1Password secret source allowlist.
+OP_ENV_ALLOWLIST = (
+    "PATH", "HOME", "USER", "LOGNAME", "LANG", "LC_ALL", "USERPROFILE", "APPDATA", "LOCALAPPDATA",
+    "SystemRoot", "TMPDIR", "TMP", "TEMP", "XDG_CONFIG_HOME", "XDG_RUNTIME_DIR", "OP_CONFIG_DIR",
+    "OP_ACCOUNT", "OP_CONNECT_HOST", "OP_CONNECT_TOKEN", "OP_LOAD_DESKTOP_APP_SETTINGS",
+)
+OP_TOKEN_ENV = "OP_SERVICE_ACCOUNT_TOKEN"
+
+
+def op_child_env(source: Optional[dict] = None) -> dict:
+    """Minimal environment for an ``op`` child process. The service-account token comes through
+    Hermes's secret route (``get_secret``) when the process environment does not carry it."""
+    src = os.environ if source is None else source
+    env = {k: src[k] for k in OP_ENV_ALLOWLIST if k in src}
+    env.update((k, v) for k, v in src.items() if k.startswith("OP_SESSION_"))
+    token = src.get(OP_TOKEN_ENV)
+    if not token and source is None:
+        try:
+            token = _default_secret_getter(OP_TOKEN_ENV)
+        except Exception:
+            token = None
+    if token:
+        env[OP_TOKEN_ENV] = token
+    env["NO_COLOR"] = "1"
+    return env
+
+
 def _default_op_runner(binary: str, ref: str) -> str:
     exe = shutil.which(binary) if os.sep not in binary else (binary if os.path.isfile(binary) else None)
     if not exe:
@@ -54,6 +83,7 @@ def _default_op_runner(binary: str, ref: str) -> str:
             text=True,
             timeout=OP_TIMEOUT,
             stdin=subprocess.DEVNULL,
+            env=op_child_env(),
             check=False,
         )
     except subprocess.TimeoutExpired as exc:

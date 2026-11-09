@@ -12,7 +12,7 @@ import re
 import shutil
 import subprocess
 
-from .credentials import CredentialError, OP_TIMEOUT
+from .credentials import CredentialError, OP_TIMEOUT, op_child_env
 
 ID_RE = re.compile(r"^[a-z0-9]{26}$")
 
@@ -25,7 +25,8 @@ def _run(binary: str, args: list[str], payload: dict | None = None) -> str:
         raise CredentialError("1Password CLI unavailable; choose another storage option explicitly")
     try:
         proc = subprocess.run([exe, *args], input=json.dumps(payload) if payload is not None else "",
-                              capture_output=True, text=True, timeout=OP_TIMEOUT, check=False)
+                              capture_output=True, text=True, timeout=OP_TIMEOUT, env=op_child_env(),
+                              check=False)
     except (OSError, subprocess.TimeoutExpired):
         raise CredentialError("1Password CLI unavailable or timed out; no local fallback was used") from None
     if proc.returncode:

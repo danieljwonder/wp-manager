@@ -1,7 +1,7 @@
 ---
 name: wp-manager
 description: Use when managing WordPress sites (updates, health, posts, pages) via wp_* tools.
-version: 0.1.2
+version: 0.1.4
 metadata:
   hermes:
     tags: [wordpress, updates, content, websites]
@@ -27,9 +27,11 @@ creating or editing posts and pages. wp-manager takes **no backups**.
    removal. Existing sites are not migrated. Report the returned `credential_storage` accurately.
 3. Users with a password manager can store the Application Password as a Hermes secret first
    (`hermes secrets onepassword set WPM_<SITE_ID>_APP_PASSWORD op://Vault/Item/password`) and call
-   `wp_site_add` with `url` and `username` only.
-4. `http://` sites are refused unless the user explicitly accepts `allow_insecure: true`. Localhost
-   is fine.
+   `wp_site_add` with `url` and `username` only. Every `wp_site_add` asks the user to approve the
+   URL and the secret it will receive. Ids that would share another site's secret name (`my-blog`
+   vs `my--blog`) are refused: pick a clearly different id.
+4. `http://` sites are refused unless the user explicitly accepts `allow_insecure: true` (its own
+   approval prompt). Localhost is fine.
 
 ## Updates
 

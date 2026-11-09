@@ -71,10 +71,50 @@ class Hook(unittest.TestCase):
         self.assertIn("could not be checked", d["message"])
 
     # ---------------------------------------------------------------- site add
-    def test_site_add_default_secret_not_gated(self):
-        self.assertIsNone(self.hook("wp_site_add", {"url": "https://new.test", "username": "a", "id": "new"}))
+    def test_site_add_default_secret_gated_with_url_and_secret_name(self):
+        d = self.hook("wp_site_add", {"url": "https://new.test", "username": "a", "id": "new"})
+        self.assertEqual(d["action"], "approve")
+        self.assertEqual(d["rule_key"], "wp-manager:credential:new")
+        self.assertIn("https://new.test", d["message"])
+        self.assertIn("WPM_NEW_APP_PASSWORD", d["message"])
 
-    def test_site_add_connection_string_not_gated(self):
+    def test_site_add_colliding_id_refused_before_any_prompt(self):
+        # wp-example and wp--example both map to WPM_WP_EXAMPLE_APP_PASSWORD.
+        args = {"url": "https://evil.test", "username": "a", "id": "wp--example"}
+        with self.assertRaises(submodule("core.service").ServiceError) as cm:
+            submodule("core.service").plan_add(args)
+        self.assertIn("WPM_WP_EXAMPLE_APP_PASSWORD", str(cm.exception))
+        before = self.t.network_calls
+        self.assertIsNone(self.hook("wp_site_add", args))  # invalid: the handler refuses it
+        r = __import__("json").loads(submodule("tools").wp_site_add(args))
+        self.assertFalse(r["success"])
+        self.assertEqual(self.t.network_calls, before)
+        self.assertEqual([s["id"] for s in submodule("core.registry").list_sites()], ["wp-example"])
+
+    def test_my_blog_vs_my__blog(self):
+        reg, svc = submodule("core.registry"), submodule("core.service")
+        self.assertEqual(reg.default_env_name("my-blog"), reg.default_env_name("my--blog"))
+        reg.add_site({"id": "my-blog", "label": "B", "url": "https://blog.test", "username": "a", "tags": [],
+                      "credential": {"env": reg.default_env_name("my-blog")}})
+        with self.assertRaises(svc.ServiceError):
+            svc.plan_add({"url": "https://other.test", "username": "a", "id": "my--blog"})
+
+    def test_remove_then_readd_with_new_url_is_gated(self):
+        svc = submodule("core.service")
+        svc.remove_site("wp-example", actor="test")
+        d = self.hook("wp_site_add", {"url": "https://attacker.test", "username": "a", "id": "wp-example"})
+        self.assertEqual(d["action"], "approve")
+        self.assertIn("https://attacker.test", d["message"])
+        self.assertIn("WPM_WP_EXAMPLE_APP_PASSWORD", d["message"])
+
+    def test_allow_insecure_gated_with_its_own_rule(self):
+        d = self.hook("wp_site_add", {"url": "http://plain.test", "username": "a", "id": "plain",
+                                      "allow_insecure": True})
+        self.assertEqual(d["action"], "approve")
+        self.assertEqual(d["rule_key"], "wp-manager:credential:plain:insecure")
+        self.assertIn("unencrypted", d["message"])
+
+    def test_site_add_connection_string_without_storage_refused(self):
         self.assertIsNone(self.hook("wp_site_add", {"connection_string": connection_string("https://new.test"),
                                                     "id": "new"}))
 
@@ -142,6 +182,10 @@ class ApprovalOff(unittest.TestCase):
         self.assertIsNone(self.hook("wp_update_apply", {"site": "wp-example", "type": "plugin"}))
         self.assertIsNone(self.hook("wp_content_save", {"site": "wp-example", "type": "post", "title": "x",
                                                         "status": "publish"}))
+
+    def test_default_secret_add_still_gated(self):
+        d = self.hook("wp_site_add", {"url": "https://new.test", "username": "a", "id": "new"})
+        self.assertEqual(d["action"], "approve")
 
     def test_credential_binding_still_gated(self):
         d = self.hook("wp_site_add", {"url": "https://evil.test", "username": "a", "id": "evil",

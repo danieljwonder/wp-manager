@@ -159,11 +159,18 @@ def plan_add(args: dict) -> dict:
     elif args.get("app_password") and not args.get("credential"):
         raise ServiceError("a plain Application Password can only be saved as a new 1Password item; "
                            "otherwise store it as a Hermes secret first and pass its name")
+    default_env = registry.default_env_name(site_id)
     for s in registry.list_sites():
         if s["id"] == site_id:
             raise ServiceError(f"a site with id {site_id!r} already exists; pass a different id")
         if s["url"].rstrip("/") == url.rstrip("/"):
             raise ServiceError(f"{url} is already registered as {s['id']!r}")
+        # Ids like "my-blog" and "my--blog" share one default secret name. Refuse rather than let
+        # a new site silently resolve (and send) another site's Application Password.
+        theirs = {registry.default_env_name(s["id"]), (s.get("credential") or {}).get("env")}
+        if default_env in theirs:
+            raise ServiceError(f"site id {site_id!r} would share the secret name {default_env} with "
+                               f"existing site {s['id']!r}; pass a different id")
     return {
         "site": {"id": site_id, "label": label, "url": url, "username": username, "tags": tags,
                  "credential": ref, "allow_insecure": allow_insecure},

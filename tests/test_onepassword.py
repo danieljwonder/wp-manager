@@ -35,6 +35,8 @@ class OnePassword(unittest.TestCase):
         self.assertNotIn(connection_string(), json.dumps(argv))
         self.assertFalse(kw.get('shell', False))
         self.assertTrue(kw['capture_output'])
+        self.assertIsInstance(kw.get('env'), dict)  # never the inherited Hermes environment
+        self.assertNotIn('ANTHROPIC_API_KEY', kw['env'])
         self.assertEqual(kw['timeout'], 15)
         cmd = argv[1]
         self.events.append(cmd)

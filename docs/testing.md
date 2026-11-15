@@ -25,8 +25,11 @@ it is not an instruction to install or enable it in a running Hermes instance.
 
 Tests cover tool inputs/results, approval scope and unattended guards, registry
 permissions, secret redaction, same-origin redirects, refusal of `.env` storage,
-1Password subprocess ordering/failures, update-result normalization, API contracts
-and Desktop loading/storage states. Node rendering uses strict SDK stubs, **not**
+1Password subprocess ordering/failures, update-result normalization, API contracts,
+Desktop loading/storage states, and update alerts (new-offer detection, silent
+unchanged backlog, partial refreshes, failure/recovery notices, text cleaning and
+length bounds, GET-only site traffic, the launcher run as a separate process, and
+the cross-process state lock). Node rendering uses strict SDK stubs, **not**
 a running Hermes Desktop application. Security-scan success is not a security audit.
 
 ## Disposable WordPress checks

@@ -139,4 +139,21 @@ CONTENT_SAVE = {
     }, "required": ["site", "type"]},
 }
 
-ALL = (SITES, SITE_ADD, SITE_REMOVE, UPDATES_SCAN, UPDATE_APPLY, HEALTH_CHECK, CONTENT_LIST, CONTENT_GET, CONTENT_SAVE)
+UPDATES_WATCH = {
+    "name": "wp_updates_watch",
+    "description": (
+        "Update alerts. 'setup' chooses which sites to watch and installs a check script that Hermes's own "
+        "scheduler runs with no model (cronjob tool, no_agent: true); it returns the exact cronjob arguments to "
+        "use next. Each run reports only NEW plugin/theme/core/translation updates and sites that stop or start "
+        "working; the first run summarises what is already pending. It never installs anything. 'status' shows "
+        "the watched sites and the last check. Use when the user asks to be told about WordPress updates."
+    ),
+    "parameters": {"type": "object", "properties": {
+        "action": {"type": "string", "enum": ["setup", "status"]},
+        "sites": {"type": "array", "items": {"type": "string"}, "description": "Site ids to watch; default all."},
+        "tag": {"type": "string", "description": "Watch only sites with this tag."},
+    }, "required": ["action"]},
+}
+
+ALL = (SITES, SITE_ADD, SITE_REMOVE, UPDATES_SCAN, UPDATE_APPLY, HEALTH_CHECK, CONTENT_LIST, CONTENT_GET, CONTENT_SAVE,
+       UPDATES_WATCH)

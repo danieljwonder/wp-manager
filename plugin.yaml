@@ -1,12 +1,13 @@
 name: wp-manager
-version: 0.1.4
+version: 0.2.0
 manifest_version: 2
 api_version: 1
 description: >-
   Manage a fleet of WordPress sites from Hermes: scan for plugin, theme, core
   and translation updates, apply them behind an approval prompt with an
-  automatic health check afterwards, and create or edit posts and pages from
-  chat. Includes a Hermes Desktop page and pairs with the "Website Manager: WP
+  automatic health check afterwards, get no-model update alerts through
+  Hermes scheduled jobs, and create or edit posts and pages from chat.
+  Includes a Hermes Desktop page and pairs with the "Website Manager: WP
   Connector for Hermes" WordPress plugin. Uses WordPress Application Passwords
   kept in Hermes secrets. Takes no backups.
 author: Daniel Wonder
@@ -24,6 +25,7 @@ provides_tools:
   - wp_content_list
   - wp_content_get
   - wp_content_save
+  - wp_updates_watch
 provides_hooks:
   - pre_tool_call
 config_schema:

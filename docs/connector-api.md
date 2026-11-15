@@ -1,4 +1,4 @@
-# Connector API v1 (0.1.0)
+# Connector API v1 (connector 0.1.1)
 
 Source of truth for the Python client. These shapes were exercised against real WordPress in Playground; complete recorded responses (HTTP status + body) are in [`e2e/samples/`](../e2e/samples/). No Application Password is recorded there.
 
@@ -37,7 +37,7 @@ HTTP 200. See [`status.json`](../e2e/samples/status.json).
 | `filesystem_method` | string (usually `direct`; other methods may need stored credentials) |
 | `abilities_api` | boolean (`wp_register_ability` exists) |
 | `application_passwords` | boolean (site-level availability) |
-| `settings` | object of booleans: `allow_core_updates` (default true), `allow_major_core_updates` (default false) |
+| `settings` | object of booleans: `allow_core_updates` (default true), `allow_major_core_updates` (default true since connector 0.1.1; saved values are kept) |
 | `user` | object: `id` integer, `login` string, `capabilities` object of booleans `update_plugins`, `update_themes`, `update_core`, `update_languages`, `manage_options` |
 | `generated_at` | ISO UTC string |
 

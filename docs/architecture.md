@@ -8,10 +8,11 @@ or malware-scanning subsystem.
 
 | Path | Responsibility |
 |---|---|
-| `plugin.yaml`, `__init__.py` | Hermes manifest and registration: nine tools, a `pre_tool_call` hook and the bundled usage skill |
+| `plugin.yaml`, `__init__.py` | Hermes manifest and registration: ten tools, a `pre_tool_call` hook and the bundled usage skill |
 | `schemas.py`, `tools.py` | Tool input schemas and JSON-result handlers |
 | `approval.py` | Interactive approval decisions and unattended-session guards |
 | `core/` | Shared registry, credentials, HTTP transport, normalization, operations, health and state |
+| `core/watch.py`, `scripts/wp_manager_watch.py` | Update alerts: what-is-new comparison and the launcher template installed for Hermes scheduled jobs |
 | `dashboard/plugin_api.py` | FastAPI router mounted by Hermes at `/api/plugins/wp-manager/` |
 | `desktop/plugin.js` | Desktop SDK page, site dialogs, scans, confirmations and connector downloads; no build step |
 | `connector/website-manager-hermes-connector/` | Standard WordPress plugin with REST routes, optional Abilities API integration and admin connection UI |
@@ -33,6 +34,13 @@ Paths are resolved through Hermes's active home, not a fixed installation path:
 - `$HERMES_HOME/wp-manager/state.json`: cached status, update offers and health.
 - `$HERMES_HOME/wp-manager/actions.jsonl`: site add/remove, update and content-save
   audit entries, with secret redaction.
+- `$HERMES_HOME/wp-manager/watch.json`: update-alert scope, offers already reported per site,
+  failing sites and the last check. No credentials.
+- `$HERMES_HOME/scripts/wp-manager-updates.py`: the update-alert launcher, written only by
+  `wp_updates_watch` setup (Hermes runs scheduled scripts only from that folder).
+
+`state.json` and `watch.json` read/modify/write cycles hold a cross-process file lock, because
+scheduled checks run in a separate process from the agent and Desktop backend.
 
 Credentials resolve through Hermes secrets using `WPM_<SITE_ID>_APP_PASSWORD`, or
 through a direct `op://Vault/Item/field` reference using the configured trusted
@@ -85,6 +93,20 @@ Degraded/down health prevents a success result and adds an alert. These probes
 are limited diagnostics, not proof that all site functionality works. Content
 uses core WordPress post/page endpoints; new content defaults to drafts and
 page-builder body edits require an explicit override after a heuristic warning.
+
+## Update alerts
+
+Scheduling and delivery belong to Hermes. `wp_updates_watch` setup validates the scope against
+the registry (no network), saves it and installs the launcher; the agent then creates a Hermes
+cron job with `no_agent: true` pointing at it. Each run, the launcher loads `core/` by path from
+the installed plugin, refuses to scan if wp-manager is no longer in `plugins.enabled` (one
+notice, then silence), runs the shared refresh scan outside any lock, and compares offers under
+the `watch.json` lock. An offer's identity is site, type, item id and offered version. A complete
+refresh replaces a site's reported set; a refresh with `refresh_errors` only adds to it. The
+runner imports scan code only, never update, content or credential-creation paths. Untrusted
+site and plugin text is stripped of control and markup characters and the message is bounded.
+`watch.json` is updated when the message is produced; Hermes owns and reports delivery outcomes,
+so an undelivered batch is not resent.
 
 ## Limitations and verification
 

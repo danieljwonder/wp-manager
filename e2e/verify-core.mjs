@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Core-update checks. Run against an OLD WordPress so an update is offered:
 //   WMHC_E2E_WP=6.5 WMHC_E2E_PHP=7.4 e2e/start-playground.sh && node e2e/verify-core.mjs
-// 1. major update refused while "allow major core updates" is off (default)
-// 2. toggles the setting through the real Tools → Hermes Connector form (options.php + nonce)
+// 1. both core permissions are on by default (connector 0.1.1+)
+// 2. unticking "allow major core updates" through the real Tools → Hermes Connector form
+//    (options.php + nonce) makes a major target refused; ticking it again allows it
 // 3. runs the core update through POST /updates and checks the new version.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -44,13 +45,10 @@ save('updates-core-offer', { http_status: upd.status, body: { core: upd.json?.co
 check('core update offered', !!offer, offer ? `${offer.current_version} -> ${offer.new_version} major=${offer.is_major} allowed=${offer.allowed}` : 'none');
 if (!offer) process.exit(1);
 
-const refused = await call('POST', `${NS}/updates`, { type: 'core', items: [offer.new_version] });
-save('error-major-core-disabled', { http_status: refused.status, body: refused.json });
-if (offer.is_major) {
-  check('major core update refused by default (403 wmhc_major_core_updates_disabled)', refused.status === 403 && refused.json?.code === 'wmhc_major_core_updates_disabled', `HTTP ${refused.status}`);
-}
+const st0 = await call('GET', `${NS}/status`);
+check('both core permissions default on', st0.json?.settings?.allow_core_updates === true && st0.json?.settings?.allow_major_core_updates === true);
 
-// Toggle "allow major core updates" through the admin settings form.
+// Settings changes go through the admin settings form, like a site owner would.
 const jar = new Map([['wordpress_test_cookie', 'WP%20Cookie%20check']]);
 async function browser(method, url, form) {
   const res = await fetch(url, {
@@ -62,17 +60,29 @@ async function browser(method, url, form) {
   return { status: res.status, text: await res.text(), location: res.headers.get('location') };
 }
 await browser('POST', `${BASE}/wp-login.php`, { log: 'admin', pwd: creds.admin_password || 'password', 'wp-submit': 'Log In', redirect_to: `${BASE}/wp-admin/`, testcookie: '1' });
-const page = await browser('GET', `${BASE}/wp-admin/tools.php?page=website-manager-hermes-connector`);
-const optNonce = (page.text.match(/name='option_page' value='wmhc_settings_group'[\s\S]*?name="_wpnonce" value="([0-9a-f]+)"/) || [])[1];
-check('settings form present with nonce', !!optNonce);
-const saved = await browser('POST', `${BASE}/wp-admin/options.php`, {
-  option_page: 'wmhc_settings_group', action: 'update', _wpnonce: optNonce,
-  _wp_http_referer: '/wp-admin/tools.php?page=website-manager-hermes-connector',
-  'wmhc_settings[allow_core_updates]': '1', 'wmhc_settings[allow_major_core_updates]': '1',
-});
-check('settings saved via options.php (302 back to the page)', saved.status === 302 && (saved.location || '').includes('settings-updated=true'), `HTTP ${saved.status} ${saved.location}`);
-const st = await call('GET', `${NS}/status`);
-check('status.settings.allow_major_core_updates is now true', st.json?.settings?.allow_major_core_updates === true);
+async function saveSettings(allowMajor) {
+  const page = await browser('GET', `${BASE}/wp-admin/tools.php?page=website-manager-hermes-connector`);
+  const optNonce = (page.text.match(/name='option_page' value='wmhc_settings_group'[\s\S]*?name="_wpnonce" value="([0-9a-f]+)"/) || [])[1];
+  check(`settings form present with nonce (major ${allowMajor ? 'on' : 'off'})`, !!optNonce);
+  const form = {
+    option_page: 'wmhc_settings_group', action: 'update', _wpnonce: optNonce,
+    _wp_http_referer: '/wp-admin/tools.php?page=website-manager-hermes-connector',
+    'wmhc_settings[allow_core_updates]': '1',
+  };
+  if (allowMajor) form['wmhc_settings[allow_major_core_updates]'] = '1'; // unchecked boxes are simply absent
+  const saved = await browser('POST', `${BASE}/wp-admin/options.php`, form);
+  check(`settings saved via options.php (major ${allowMajor ? 'on' : 'off'})`, saved.status === 302 && (saved.location || '').includes('settings-updated=true'), `HTTP ${saved.status} ${saved.location}`);
+  const st = await call('GET', `${NS}/status`);
+  check(`status.settings.allow_major_core_updates is ${allowMajor}`, st.json?.settings?.allow_major_core_updates === allowMajor);
+}
+
+await saveSettings(false);
+const refused = await call('POST', `${NS}/updates`, { type: 'core', items: [offer.new_version] });
+save('error-major-core-disabled', { http_status: refused.status, body: refused.json });
+if (offer.is_major) {
+  check('major core update refused once unticked (403 wmhc_major_core_updates_disabled)', refused.status === 403 && refused.json?.code === 'wmhc_major_core_updates_disabled', `HTTP ${refused.status}`);
+}
+await saveSettings(true);
 
 const run = await call('POST', `${NS}/updates`, { type: 'core' });
 save('updates-post-core', { http_status: run.status, body: run.json ?? run.text.slice(0, 4000) });

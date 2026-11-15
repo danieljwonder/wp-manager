@@ -9,7 +9,7 @@ import json
 import logging
 from typing import Any, Callable
 
-from .core import credentials, redact, registry, service, settings
+from .core import credentials, redact, registry, service, settings, watch
 from .core.client import WPError
 
 log = logging.getLogger(__name__)
@@ -108,6 +108,16 @@ def wp_content_save(args: dict) -> dict:
     return service.content_save(args, actor=ACTOR)
 
 
+@_guard
+def wp_updates_watch(args: dict) -> dict:
+    action = args.get("action") or "status"
+    if action == "setup":
+        return watch.setup({k: args.get(k) for k in ("sites", "tag")}, actor=ACTOR)
+    if action == "status":
+        return watch.status()
+    raise service.ServiceError("action must be setup or status")
+
+
 HANDLERS = {
     "wp_sites": wp_sites,
     "wp_site_add": wp_site_add,
@@ -118,4 +128,5 @@ HANDLERS = {
     "wp_content_list": wp_content_list,
     "wp_content_get": wp_content_get,
     "wp_content_save": wp_content_save,
+    "wp_updates_watch": wp_updates_watch,
 }

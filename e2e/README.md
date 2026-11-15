@@ -23,7 +23,7 @@ node e2e/verify-core.mjs
 e2e/stop-playground.sh
 ```
 
-`verify-core.mjs` verifies that a major core target is blocked by default, enables it through the actual nonce-protected admin settings form, then installs the offered WordPress release and checks `/status`, `/health`, and the homepage. Start with an old WP version, not `latest`.
+`verify-core.mjs` verifies that both core-update permissions are on by default (connector 0.1.1+), unticks major updates through the actual nonce-protected admin settings form and checks a major target is refused, ticks it again, then installs the offered WordPress release and checks `/status`, `/health`, and the homepage. Start with an old WP version, not `latest`.
 
 Options: `WMHC_E2E_PORT` (9400), `WMHC_E2E_PHP` (8.3), `WMHC_E2E_WP` (latest), `WMHC_E2E_TIMEOUT` (420 seconds), `WMHC_E2E_LOCALE` (optional, e.g. `de_DE`), `WMHC_E2E_LABEL` (suffix on sample/result directories), `WMHC_LINT_PHP` (`"8.3 7.4"`). WordPress `6.5` resolves to a patch on that branch (6.5.14 in the recorded run), not exact 6.5.0. The script injects `preferredVersions` into a generated blueprint because CLI flags alone were ignored when a blueprint was supplied.
 

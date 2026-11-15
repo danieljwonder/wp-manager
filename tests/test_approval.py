@@ -30,6 +30,31 @@ class Hook(unittest.TestCase):
         self.assertIn("no backups", d["message"])
         self.assertIn(BASE, d["message"])
 
+    def _cache_core(self, offers):
+        submodule("core.state").update("wp-example", updates={"core": offers, "plugins": [], "themes": [],
+                                                              "translations": []})
+
+    def test_core_prompt_names_a_major_upgrade(self):
+        self._cache_core([{"id": "6.8.3", "current_version": "6.8.1", "new_version": "6.8.3", "is_major": False},
+                          {"id": "6.9", "current_version": "6.8.1", "new_version": "6.9", "is_major": True,
+                           "allowed": True}])
+        before = self.t.network_calls
+        d = self.hook("wp_update_apply", {"site": "wp-example", "type": "core"})
+        self.assertIn("MAJOR WordPress upgrade (6.8.1 → 6.9)", d["message"])
+        d = self.hook("wp_update_apply", {"site": "wp-example", "type": "core", "items": ["6.8.3"]})
+        self.assertNotIn("MAJOR", d["message"])
+        self.assertEqual(self.t.network_calls, before)
+
+    def test_core_prompt_blocked_major_and_unknown(self):
+        self._cache_core([{"id": "6.9", "current_version": "6.8.1", "new_version": "6.9", "is_major": True,
+                           "allowed": False}])
+        d = self.hook("wp_update_apply", {"site": "wp-example", "type": "core"})
+        self.assertNotIn("MAJOR", d["message"])
+        self.assertIn("settings block it", d["message"])
+        self._cache_core([])
+        d = self.hook("wp_update_apply", {"site": "wp-example", "type": "core"})
+        self.assertIn("may install a major release", d["message"])
+
     def test_update_rule_is_per_site(self):
         self.env.secrets["WPM_OTHER_APP_PASSWORD"] = SECRET
         submodule("core.registry").add_site({"id": "other", "label": "Other", "url": "https://other.test",

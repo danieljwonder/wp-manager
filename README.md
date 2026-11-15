@@ -1,9 +1,9 @@
 # WP Manager for Hermes
 
 Look after your WordPress sites from [Hermes Agent](https://hermes-agent.nousresearch.com/):
-see which plugins, themes, translations and WordPress versions need updating, install updates
-after you approve them, check that each site still works afterwards, and write or edit posts and
-pages from chat.
+see which plugins, themes, translations and WordPress versions need updating, get told when new
+updates appear, install updates after you approve them, check that each site still works
+afterwards, and write or edit posts and pages from chat.
 
 Use it for routine site maintenance and content editing. It does not provide backups,
 client reports, staging sites or malware scans.
@@ -24,7 +24,9 @@ client reports, staging sites or malware scans.
 
 - **Chat tools** (toolset `wp_manager`): `wp_sites`, `wp_site_add`, `wp_site_remove`,
   `wp_updates_scan`, `wp_update_apply`, `wp_health_check`, `wp_content_list`, `wp_content_get`,
-  `wp_content_save`.
+  `wp_content_save`, `wp_updates_watch`.
+- **Update alerts**: a scheduled check that tells you about new updates on your messaging app,
+  with no AI model involved. See [Update alerts](#update-alerts).
 - **A WP Manager page in Hermes Desktop**: all your sites in one table (versions, pending updates,
   health, last check), with buttons to scan, update, add sites and download the connector.
 - **The connector**: a small WordPress plugin, *Website Manager: WP Connector for Hermes*, that
@@ -90,6 +92,48 @@ list is available. Health remains **Not checked yet** until you run a health che
 You can revoke access at any time: in wp-admin, go to **Users → Profile → Application
 Passwords** and revoke "Hermes (website-manager)". wp-manager never uses or asks for your
 WordPress login password.
+
+### What Hermes may update on a site
+
+The connector's **Tools → Hermes Connector** page has two options, both on by default: minor
+WordPress core updates and major WordPress core updates. Untick one to stop Hermes running that
+kind of update on the site. Plugin, theme and translation updates are allowed for users with the
+matching WordPress capability. These are permissions, not automatic updates: Hermes updates only
+when you ask, and asks you to approve each run.
+
+## Update alerts
+
+Ask Hermes, for example: *"Alert me about WordPress updates every morning in Matrix."* (any
+messaging platform connected to Hermes works). In
+Desktop, the **Set up alerts in chat** button on the WP Manager page (or ⌘K → **WP Manager: Set
+up update alerts**) pre-fills that request in the chat; finish it with where alerts should go and
+send it.
+
+Hermes calls `wp_updates_watch` to choose the sites to watch (all, a tag, or a list) and installs a
+small check script, then schedules it with its own [scheduled jobs](https://hermes-agent.nousresearch.com/docs/guides/cron-script-only)
+in **no-agent mode**: the script runs on a timer and Hermes sends whatever it prints. No AI model
+runs, so routine checks cost nothing.
+
+- The **first** check sends one summary of what is already pending. After that you hear only
+  about **new** updates (a new item, or a newer version of one you were already told about).
+  Nothing new means no message.
+- A site that stops responding (or whose password stops working) is reported once, and again
+  when it works.
+- Every alert ends with "Nothing was installed." Alerts never install anything. To update, ask
+  Hermes or use the WP Manager page.
+- Change how often or where alerts go, or pause and remove them, like any other Hermes scheduled
+  job (`hermes cron list`, or ask Hermes). Run `wp_updates_watch` setup again to change which
+  sites are watched. The WP Manager page shows the last check.
+- The check script lives at `$HERMES_HOME/scripts/wp-manager-updates.py` (Hermes runs scheduled
+  scripts only from that folder) and remembers what it reported in
+  `$HERMES_HOME/wp-manager/watch.json`.
+- Each check asks WordPress to refresh its update information from WordPress.org, the same as
+  **Rescan**.
+- Delivery is Hermes's job. If Hermes can't deliver an alert, it reports that itself (see
+  `hermes cron list`); that alert is not sent again.
+- Alerts need Hermes (its gateway) to be running. Site passwords kept in the Hermes `.env` are
+  available to the check script; other Hermes secret sources work if Hermes loads them into its
+  environment.
 
 ## Where the password is kept
 
@@ -206,6 +250,7 @@ in `config.yaml`:
 ## Things to ask the agent
 
 - "Which of my WordPress sites need updates?"
+- "Tell me about new WordPress updates every morning." (Hermes asks where to send them.)
 - "Update Hello Dolly on the shop site." (Hermes asks you to approve.)
 - "Is clientsite.com healthy?"
 - "Draft a blog post on myblog about our autumn opening hours."
@@ -218,8 +263,10 @@ wp-manager talks only to the WordPress sites you add, using the WordPress REST A
 site's Application Password. It also runs the `op` CLI (the `op_binary` setting) on the Hermes
 machine for `op://` references, vault names and explicitly selected 1Password item creation. That
 CLI talks to 1Password under your own account or service account.
-It reads and writes only its own folder, `$HERMES_HOME/wp-manager/`, and never reads or writes
-the Hermes `.env` file. It makes no other network calls and sends no telemetry. The connector only contacts WordPress.org's
+It reads and writes only its own folder, `$HERMES_HOME/wp-manager/`, plus the update-alert check
+script it installs into `$HERMES_HOME/scripts/` when you set up alerts. It never reads or writes
+the Hermes `.env` file. It makes no other network calls and sends no telemetry; alerts are
+delivered by Hermes. The connector only contacts WordPress.org's
 normal update service.
 
 ## Development

@@ -4,7 +4,7 @@ Tags: updates, maintenance, rest api, abilities, ai agent
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -56,7 +56,7 @@ Revoke the "Hermes (website-manager)" Application Password under Users → Profi
 
 = Can Hermes update WordPress core? =
 
-Minor core updates are allowed by default and major ones are blocked. Change this on Tools → Hermes Connector.
+Yes. Minor and major core updates are both allowed by default, and Hermes runs one only when asked. Untick either on Tools → Hermes Connector to block it on this site.
 
 = Does it work on multisite? =
 
@@ -64,10 +64,16 @@ The routes are available on multisite, where update capabilities belong to super
 
 == Changelog ==
 
+= 0.1.1 =
+* Major WordPress core updates are now allowed by default, like minor ones. A setting you already saved on Tools → Hermes Connector is kept.
+
 = 0.1.0 =
 * First release: status, updates, health and log REST routes; Abilities API registration; Tools → Hermes Connector page.
 
 == Upgrade Notice ==
+
+= 0.1.1 =
+Major core updates are now allowed by default. If you never saved the connector settings, Hermes can now run major core updates when asked; untick the option to block them.
 
 = 0.1.0 =
 First release.

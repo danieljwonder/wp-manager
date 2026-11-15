@@ -1,7 +1,7 @@
 ---
 name: wp-manager
 description: Use when managing WordPress sites (updates, health, posts, pages) via wp_* tools.
-version: 0.1.4
+version: 0.2.0
 metadata:
   hermes:
     tags: [wordpress, updates, content, websites]
@@ -47,6 +47,23 @@ creating or editing posts and pages. wp-manager takes **no backups**.
    failed), say so first, plainly, with the failing signals. Never call that run a success. Tell
    the user to check the site and restore from backup if it is broken.
 5. `wp_health_check` checks a site on demand: home page, REST API, connector self-report.
+
+## Update alerts
+
+When the user wants to hear about new updates ("tell me about WordPress updates every morning"):
+
+1. Call `cronjob` with `action: list` first. If a job named "WP Manager update alerts" exists,
+   update it instead of creating another.
+2. `wp_updates_watch` with `action: setup` (optional `sites` or `tag`). It installs the check script
+   and returns the exact `cronjob` arguments.
+3. Ask how often and where to send alerts if they did not say, then call `cronjob` with those
+   arguments, their schedule and `deliver` target. Keep `no_agent: true`: the script's output is
+   the message and no model runs. Never add a prompt or skills to that job.
+4. Tell them: the first alert lists what is already pending, then only new updates; nothing new
+   sends nothing; alerts never install anything; pause, change or remove it like any scheduled job.
+
+`wp_updates_watch` with `action: status` shows the watched sites, last check and failing sites.
+An alert is never approval to update: when the user replies to one, follow the Updates steps above.
 
 ## Content
 

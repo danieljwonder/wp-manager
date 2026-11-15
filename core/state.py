@@ -11,7 +11,7 @@ import threading
 import time
 from typing import Any, Optional
 
-from . import paths, redact
+from . import filelock, paths, redact
 
 _lock = threading.RLock()
 MAX_ACTIONS_READ = 500
@@ -43,7 +43,7 @@ def get(site_id: str) -> dict:
 
 def update(site_id: str, **fields: Any) -> dict:
     """Merge ``fields`` into the site's cached state."""
-    with _lock:
+    with _lock, filelock.locked(paths.state_file()):
         data = _read()
         entry = data.get(site_id) or {}
         entry.update(redact.scrub_obj(fields))
@@ -53,7 +53,7 @@ def update(site_id: str, **fields: Any) -> dict:
 
 
 def drop(site_id: str) -> None:
-    with _lock:
+    with _lock, filelock.locked(paths.state_file()):
         data = _read()
         if site_id in data:
             del data[site_id]

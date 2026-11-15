@@ -293,7 +293,7 @@ class Admin_Page {
 						<?php esc_html_e( 'Allow major WordPress core updates (for example 6.8 → 6.9)', 'website-manager-hermes-connector' ); ?>
 					</label>
 				</fieldset>
-				<p class="description"><?php esc_html_e( 'Plugin, theme and translation updates are always allowed for users with the matching capability. Hermes does not take backups: make sure your host does.', 'website-manager-hermes-connector' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Both are on by default. Untick one to stop Hermes running that kind of update on this site. Plugin, theme and translation updates are always allowed for users with the matching capability. Hermes only updates when asked, and does not take backups: make sure your host does.', 'website-manager-hermes-connector' ); ?></p>
 				<?php submit_button( __( 'Save settings', 'website-manager-hermes-connector' ) ); ?>
 			</form>
 

@@ -3,7 +3,7 @@
 // missing import, an undefined component or a crash in any render path fails the test.
 // Prop shapes are checked against the Desktop UI kit's real prop types where it matters.
 
-export const calls = { notify: [], rest: [], navigate: [], queries: [], mutations: [], invalidations: [], nodes: [], text: [] }
+export const calls = { notify: [], rest: [], navigate: [], queries: [], mutations: [], invalidations: [], nodes: [], text: [], drafts: [] }
 export const state = { overrides: {}, current: null, counter: 0, restData: {}, queryStates: {} }
 
 // ---------------------------------------------------------------- jsx runtime
@@ -58,7 +58,8 @@ const atom = v => ({ get: () => v, subscribe: () => () => {}, listen: () => () =
 export const host = {
   state: { profile: atom('default'), connectionId: atom('local'), viewport: atom({ width: 1200, height: 800, narrow: false }), gateway: atom('open') },
   notify: n => { calls.notify.push(n); return 'id' },
-  navigate: p => { calls.navigate.push(p) }
+  navigate: p => { calls.navigate.push(p) },
+  composer: { setDraft: async (sid, text) => { calls.drafts.push([sid, text]); return true }, focus: () => {} }
 }
 export const useValue = a => a.get()
 export const queryClient = { invalidateQueries: opts => { calls.invalidations.push(opts); return Promise.resolve() }, removeQueries: () => {}, cancelQueries: () => Promise.resolve() }

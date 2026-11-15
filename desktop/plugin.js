@@ -121,6 +121,47 @@ function updatesReady(site) {
 }
 
 // ------------------------------------------------------------------ page
+const ALERTS_PROMPT = 'Set up WordPress update alerts for all my sites: check every morning at 8 and send new updates to '
+
+// Pre-fill the chat with the alerts request (nothing is sent; the user finishes the sentence with
+// their destination and presses Enter). Falls back to a toast on Desktops without host.composer.
+async function draftAlertsPrompt() {
+  const composer = host.composer
+  if (composer && typeof composer.setDraft === 'function') {
+    host.navigate('/')
+    const ok = await composer.setDraft(null, ALERTS_PROMPT).catch(() => false)
+    if (ok) { composer.focus && composer.focus(null); return }
+  }
+  host.notify({ kind: 'info', message: `Ask Hermes in chat: “${ALERTS_PROMPT}…”` })
+}
+
+// Update alerts are a Hermes scheduled job (no model) set up from chat; this line only reports.
+function UpdateAlerts({ api, scope }) {
+  const watch = useQuery({
+    queryKey: keyFor(scope, 'watch'),
+    queryFn: () => api.rest('/watch'),
+    refetchInterval: POLL_MS,
+    retry: false
+  })
+  const w = watch.data
+  if (!w || watch.isError) return null
+  if (!w.set_up) {
+    return h('p', { className: 'flex flex-wrap items-center gap-2 text-xs', style: muted },
+      h(Codicon, { name: 'bell-slash', size: 12 }),
+      'Update alerts are off: get a message when new updates appear, with no AI model involved.',
+      h(Button, { size: 'xs', variant: 'outline', onClick: () => { void draftAlertsPrompt() } }, 'Set up alerts in chat'))
+  }
+  const r = w.last_result || {}
+  const failing = Object.keys(w.failing || {}).length
+  const parts = [`Update alerts: ${w.scope}`, `last check ${ago(w.last_run)}`]
+  if (w.last_run && typeof r.new === 'number') parts.push(`${r.new} new`)
+  return h('p', { className: 'flex flex-wrap items-center gap-1 text-xs', style: muted },
+    h(Codicon, { name: 'bell', size: 12 }),
+    parts.join(' · '),
+    failing ? h(Badge, { variant: 'warn' }, `${failing} site${failing === 1 ? '' : 's'} failing`) : undefined,
+    h('span', { style: faint }, ' Schedule and delivery: Hermes scheduled jobs.'))
+}
+
 function Page({ api }) {
   const scope = useScope()
   const viewport = useValue(host.state.viewport)
@@ -199,6 +240,7 @@ function Page({ api }) {
         : []),
     h('p', { className: 'text-xs', style: faint },
       'wp-manager takes no backups. Make sure your host has a recent backup before running updates.'),
+    h(UpdateAlerts, { api, scope }),
     body,
     openSite ? h(SiteDialog, { key: openSite, api, scope, siteId: openSite,
       summary: (data.sites || []).find(s => s.id === openSite), onClose: () => setOpenSite(null) }) : undefined,
@@ -604,6 +646,11 @@ export default {
         id: 'open',
         area: PALETTE_AREA,
         data: { id: 'wp-manager.open', label: 'WP Manager: Open sites', keywords: ['wordpress', 'wp', 'sites'], run: () => host.navigate(ROUTE) }
+      },
+      {
+        id: 'alerts',
+        area: PALETTE_AREA,
+        data: { id: 'wp-manager.alerts', label: 'WP Manager: Set up update alerts', keywords: ['wordpress', 'wp', 'updates', 'alerts', 'notify'], run: () => { void draftAlertsPrompt() } }
       },
       {
         id: 'scan',

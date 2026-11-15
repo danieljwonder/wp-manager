@@ -15,6 +15,8 @@ Routes:
                                      press is the human approval
     GET    /sites/{id}/health        live health check
     GET    /actions?site=&limit=     audit log
+    GET    /watch                    update-alert status (scope, last check, failing sites); alerts
+                                     are set up from chat and scheduled as a Hermes cron job
     GET    /connector.zip            the bundled WordPress connector as a zip (?encoding=base64 → JSON)
     POST   /connector-package        write that zip under <HERMES_HOME>/wp-manager/ and return its path
                                      (the Desktop saves it through its authenticated file download)
@@ -223,6 +225,11 @@ def actions(site: Optional[str] = None, limit: int = Query(50, ge=1, le=500)):
         return _core("state").read_actions(site, limit)
 
     return _scrubbed({"actions": _call(run)})
+
+
+@router.get("/watch")
+def watch_status():
+    return _scrubbed(_call(lambda: _core("watch").status()))
 
 
 def connector_zip_bytes() -> bytes:

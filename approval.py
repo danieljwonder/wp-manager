@@ -20,7 +20,7 @@ from __future__ import annotations
 import os
 from typing import Any, Callable, Optional
 
-from .core import redact, registry, service, settings
+from .core import redact, registry, service, settings, state
 
 GATED_TOOLS = frozenset({"wp_update_apply", "wp_content_save", "wp_site_add"})
 UNATTENDED_PLATFORMS = frozenset({"webhook", "msgraph_webhook", "api_server"})
@@ -61,14 +61,34 @@ def _list(items: Any, limit: int = 8) -> str:
     return ", ".join(items[:limit]) + more
 
 
+def _core_note(site_id: str, plan: dict) -> str:
+    """Say plainly when a core run would be a major upgrade. Cached scan data only (no network);
+    the connector allows major core updates by default, so the prompt is where that shows."""
+    offers = ((state.get(site_id).get("updates") or {}).get("core")) or []
+    chosen = offers if plan["all"] else [o for o in offers if o.get("new_version") in plan["items"]
+                                         or o.get("id") in plan["items"]]
+    # A bare core run installs the highest version the site allows (connector run_core_update).
+    majors = [o for o in chosen if o.get("is_major") and o.get("allowed") is not False]
+    if majors:
+        o = max(majors, key=lambda x: [int(p) if p.isdigit() else 0 for p in str(x.get("new_version")).split(".")])
+        cur = o.get("current_version") or "current"
+        return f" This is a MAJOR WordPress upgrade ({cur} → {o.get('new_version')}): test the site after."
+    if any(o.get("is_major") for o in chosen):
+        return " A major WordPress release is offered but this site's connector settings block it."
+    if not offers:
+        return " Pending core versions are not known yet (scan first); this may install a major release."
+    return ""
+
+
 def _decide_update(args: dict) -> Optional[tuple[str, str]]:
     plan = service.plan_update(args)
     site = plan["site"]
     what = {"plugin": "plugin", "theme": "theme", "core": "WordPress core", "translations": "translation"}[plan["type"]]
     items = "all available" if plan["all"] else _list(plan["items"])
     excl = f", except {_list(plan['exclude'])}" if plan["exclude"] else ""
+    major = _core_note(site["id"], plan) if plan["type"] == "core" else ""
     msg = (f"Run {what} updates on {site['label']} ({site['url']}): {items}{excl}. "
-           f"The site may briefly show a maintenance page. {NO_BACKUP}")
+           f"The site may briefly show a maintenance page.{major} {NO_BACKUP}")
     return f"wp-manager:update:{site['id']}", msg
 
 

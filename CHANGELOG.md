@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.2.0
+
+- **Update alerts.** New `wp_updates_watch` tool: `setup` picks the sites to watch (all, a tag or a
+  list) and installs a check script into `$HERMES_HOME/scripts/`; Hermes's built-in scheduled jobs
+  run it in no-agent mode (no model) and deliver its output. Each run refreshes update data and
+  reports only new offers (new item or newer version), plus sites that start or stop failing. The
+  first run summarises what is already pending; unchanged backlog is silent. A partial
+  WordPress.org refresh never drops offers already reported. Alerts never install anything.
+  `status` and the Desktop page show the watched sites and last check. When alerts are off, the
+  Desktop page and a ⌘K command (**WP Manager: Set up update alerts**) pre-fill the chat with the
+  request; nothing is sent until the user finishes and submits it.
+- Cached site state (`state.json`) now uses a cross-process file lock, since scheduled checks run
+  in their own process.
+- Bundled connector 0.1.1: major WordPress core updates are allowed by default, like minor ones.
+  Both options stay on Tools → Hermes Connector, and settings already saved there are kept.
+- The approval prompt for a core update now says when it is a major WordPress upgrade (from the
+  last scan), when the site blocks the major release offered, or when versions are not known yet.
+
 ## 0.1.4
 
 Security fixes from catalog review.

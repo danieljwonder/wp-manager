@@ -75,7 +75,9 @@ const find = (arr, key, val) => (arr || []).find((x) => x[key] === val);
 const status = await call('GET', `${NS}/status`);
 save('status', { http_status: status.status, body: status.json });
 check('GET /status 200', status.status === 200, `HTTP ${status.status}`);
-check('status.connector_version is 0.1.0', status.json?.connector_version === '0.1.0');
+const CONNECTOR_VERSION = (readFileSync(join(ROOT, 'connector/website-manager-hermes-connector/website-manager-hermes-connector.php'), 'utf8').match(/define\( 'WMHC_VERSION', '([^']+)' \)/) || [])[1];
+check(`status.connector_version is ${CONNECTOR_VERSION}`, !!CONNECTOR_VERSION && status.json?.connector_version === CONNECTOR_VERSION);
+check('both core update permissions default on', status.json?.settings?.allow_core_updates === true && status.json?.settings?.allow_major_core_updates === true);
 check('status.environment_type is local', status.json?.environment_type === 'local');
 const wpVer = (status.json?.wp_version || '0').split('.').map(Number);
 const HAS_ABILITIES = wpVer[0] > 6 || (wpVer[0] === 6 && wpVer[1] >= 9);
@@ -137,9 +139,17 @@ const stillPending = [...(after.json?.plugins || []).map((p) => p.file), ...(aft
   .filter((x) => ['classic-editor/classic-editor.php', 'hello-dolly/hello.php', 'twentytwentyfour'].includes(x));
 check('updated items no longer pending (update data refreshed)', after.status === 200 && stillPending.length === 0, `counts ${JSON.stringify(after.json?.counts)}`);
 
-const core = await call('POST', `${NS}/updates`, { body: { type: 'core' } });
-save('updates-post-core-uptodate', { http_status: core.status, body: core.json ?? core.text.slice(0, 4000) });
-check('POST /updates core (no minor pending) => up_to_date, or skipped when only a major is offered', core.status === 200 && ['up_to_date', 'skipped'].includes(core.json?.results?.[0]?.status), core.json?.results?.[0]?.status);
+// Major core updates are allowed by default (connector 0.1.1+), so a bare core POST on an old
+// WordPress would really upgrade it. Only exercise the no-op path when no core offer exists; the
+// real upgrade (and the major opt-out) is covered by verify-core.mjs.
+const coreOffers = (after.json?.core || []);
+if (coreOffers.length === 0) {
+  const core = await call('POST', `${NS}/updates`, { body: { type: 'core' } });
+  save('updates-post-core-uptodate', { http_status: core.status, body: core.json ?? core.text.slice(0, 4000) });
+  check('POST /updates core with nothing offered => up_to_date', core.status === 200 && core.json?.results?.[0]?.status === 'up_to_date', core.json?.results?.[0]?.status);
+} else {
+  console.log(`SKIP  bare core POST (would install ${coreOffers[0].new_version}; run verify-core.mjs for the real core update)`);
+}
 const coreBad = await call('POST', `${NS}/updates`, { body: { type: 'core', items: ['1.0'] } });
 save('error-core-version-not-offered', { http_status: coreBad.status, body: coreBad.json });
 check('POST core with a version not offered => 404 wmhc_no_core_update', coreBad.status === 404 && coreBad.json?.code === 'wmhc_no_core_update');
@@ -183,7 +193,7 @@ if (!HAS_ABILITIES) {
   save('abilities-list', { http_status: abil.status, body: ours });
   check('abilities list has get-status, list-updates, run-updates', ['get-status', 'list-updates', 'run-updates'].every((n) => ours.some((a) => a.name === `website-manager-hermes/${n}`)), ours.map((a) => a.name).join(', '));
   const abStatus = await call('GET', `${ABIL}/abilities/website-manager-hermes/get-status/run`);
-  check('ability get-status runs (GET)', abStatus.status === 200 && abStatus.json?.connector_version === '0.1.0');
+  check('ability get-status runs (GET)', abStatus.status === 200 && abStatus.json?.connector_version === CONNECTOR_VERSION);
   const abList = await call('GET', `${ABIL}/abilities/website-manager-hermes/list-updates/run?input%5Brefresh%5D=false`);
   save('ability-list-updates', { http_status: abList.status, body: abList.json });
   check('ability list-updates runs (GET)', abList.status === 200 && abList.json?.counts !== undefined);

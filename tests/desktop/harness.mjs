@@ -75,8 +75,33 @@ for (const [mode, cred] of [['string', 'env'], ['manual', 'env'], ['manual', 'op
 renderPage({ sites: { sites: [], tags: [] } }, { Page: { 3: true }, AddSiteDialog: { 5: {
   site: { label: 'Example' }, verified: { wp_version: '6.8.1' }, credential_storage: 'stored', note: 'n', warning: 'w' } } })
 
+// update-alert status line: off, on, on with a failing site
+const alertText = []
+for (const watch of [{ set_up: false, scope: 'not set up' },
+  { set_up: true, scope: 'all sites', last_run: '2026-11-05T09:00:00Z', last_result: { new: 2 }, failing: {} },
+  { set_up: true, scope: 'all sites', last_run: null, last_result: null, failing: { 'wp-example': 'credential' } }]) {
+  stubs.calls.text.length = 0
+  renderPage({ sites: { sites: [site], tags: [] }, watch })
+  alertText.push(stubs.calls.text.join(' '))
+}
+if (!stubs.calls.queries.some(q => q.queryKey.includes('watch'))) throw new Error('watch status not queried')
+if (!/Update alerts are off/.test(alertText[0])) throw new Error('alerts-off hint missing')
+if (!/Set up alerts in chat/.test(alertText[0])) throw new Error('alerts setup button missing')
+if (!/Update alerts: all sites/.test(alertText[1]) || !/2 new/.test(alertText[1])) throw new Error('alerts-on line missing')
+if (!/1 site failing/.test(alertText[2])) throw new Error('failing badge missing')
+
 // palette scan runs outside React
 await palette.find(p => p.data.id === 'wp-manager.scan').data.run()
 await new Promise(r => setTimeout(r, 10))
 if (!stubs.calls.rest.some(([p]) => p === '/scan')) throw new Error('scan command did not call /scan')
+
+// alerts command drafts the request into the composer (never sends) and goes to the chat
+await palette.find(p => p.data.id === 'wp-manager.alerts').data.run()
+if (!stubs.calls.drafts.length || !/update alerts/i.test(stubs.calls.drafts[0][1])) throw new Error('alerts command did not draft the prompt')
+if (!stubs.calls.navigate.includes('/')) throw new Error('alerts command did not open the chat')
+// without host.composer it degrades to a hint toast
+const savedComposer = stubs.host.composer; delete stubs.host.composer
+await palette.find(p => p.data.id === 'wp-manager.alerts').data.run()
+if (!stubs.calls.notify.some(n => /Ask Hermes in chat/.test(n.message))) throw new Error('alerts fallback toast missing')
+stubs.host.composer = savedComposer
 console.log(`OK ${renders} renders`)

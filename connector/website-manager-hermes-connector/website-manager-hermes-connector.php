@@ -3,7 +3,7 @@
  * Plugin Name:       Website Manager: WP Connector for Hermes
  * Plugin URI:        https://github.com/danieljwonder/wp-manager
  * Description:       Lets the Hermes agent check and run plugin, theme, core and translation updates on this site through an authenticated REST API (Application Passwords) and the Abilities API.
- * Version:           0.1.0
+ * Version:           0.1.1
  * Requires at least: 6.5
  * Requires PHP:      7.4
  * Author:            danieljwonder
@@ -34,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WMHC_VERSION', '0.1.0' );
+define( 'WMHC_VERSION', '0.1.1' );
 define( 'WMHC_FILE', __FILE__ );
 define( 'WMHC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WMHC_URL', plugin_dir_url( __FILE__ ) );

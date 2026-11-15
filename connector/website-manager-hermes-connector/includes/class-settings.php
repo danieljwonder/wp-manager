@@ -21,12 +21,15 @@ class Settings {
 	/**
 	 * Default values.
 	 *
+	 * Everything Hermes may update is allowed by default. Each change still needs an explicit
+	 * request (and Hermes-side approval); these are permissions, not automatic updates.
+	 *
 	 * @return array<string, bool>
 	 */
 	public static function defaults() {
 		return array(
 			'allow_core_updates'       => true,
-			'allow_major_core_updates' => false,
+			'allow_major_core_updates' => true,
 		);
 	}
 

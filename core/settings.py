@@ -20,6 +20,38 @@ def set_getter(getter: Getter | None) -> None:
     _getter = getter or (lambda key, default=None: default)
 
 
+def _plugin_entry() -> dict:
+    from hermes_cli.config import load_config_readonly
+
+    cfg = load_config_readonly() or {}
+    return ((cfg.get("plugins") or {}).get("entries") or {}).get("wp-manager") or {}
+
+
+def hermes_config_getter(key: str, default: Any = None) -> Any:
+    """Read ``plugins.entries.wp-manager.settings`` from the active profile's config.yaml (for
+    processes without a plugin context: the Desktop backend and the update-alert launcher)."""
+    try:
+        entry = _plugin_entry()
+        for section in ("settings", "config"):
+            values = entry.get(section)
+            if isinstance(values, dict) and key in values:
+                return values[key]
+    except Exception:
+        pass
+    return default
+
+
+def plugin_enabled() -> bool:
+    """True when wp-manager is listed in ``plugins.enabled``. Unreadable config counts as disabled."""
+    try:
+        from hermes_cli.config import load_config_readonly
+
+        enabled = ((load_config_readonly() or {}).get("plugins") or {}).get("enabled") or []
+        return "wp-manager" in enabled
+    except Exception:
+        return False
+
+
 def _bool(value: Any, default: bool) -> bool:
     if isinstance(value, bool):
         return value

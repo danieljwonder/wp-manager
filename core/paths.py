@@ -60,6 +60,17 @@ def actions_file() -> Path:
     return data_dir() / "actions.jsonl"
 
 
+def watch_file() -> Path:
+    return data_dir() / "watch.json"
+
+
+def scripts_dir() -> Path:
+    """Hermes runs cron scripts only from ``<HERMES_HOME>/scripts/``."""
+    d = hermes_home() / "scripts"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
 
 def write_private(path: Path, text: str) -> None:
     """Atomically replace ``path`` with ``text``, mode 0600."""

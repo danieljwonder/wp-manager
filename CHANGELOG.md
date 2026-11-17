@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1
+
+- Clarify the bundled agent skill's update failure policy: an individual item failure must not
+  block other authorised items on a healthy site, and an unhealthy site must not block independent
+  sites. Stop further updates on the affected site if its health degrades. Do not retry failed
+  items automatically; stop the whole batch only for a shared risk or at the user's request.
+- This is an agent guidance fix; the updater and Desktop execution behaviour are unchanged.
+
 ## 0.2.0
 
 - **Update alerts.** New `wp_updates_watch` tool: `setup` picks the sites to watch (all, a tag or a

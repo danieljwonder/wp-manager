@@ -1,7 +1,7 @@
 ---
 name: wp-manager
 description: Use when managing WordPress sites (updates, health, posts, pages) via wp_* tools.
-version: 0.2.0
+version: 0.2.1
 metadata:
   hermes:
     tags: [wordpress, updates, content, websites]
@@ -42,7 +42,13 @@ creating or editing posts and pages. wp-manager takes **no backups**.
    takes none.
 3. `wp_update_apply` with one `type` per call (`plugin`, `theme`, `core`, `translations`). It is
    approval-gated: Hermes asks the user. Prefer explicit `items`. On several sites, go one site
-   at a time and stop at the first unhealthy result.
+   at a time. A failed update on one site must not block already-authorised updates on independent
+   sites. A single item failure, such as an expired premium licence or missing package, must not
+   block the other authorised items on the same site when the site itself remains healthy. Report
+   failed items plainly and continue the rest. If the site's health degrades or it goes down, stop
+   further updates on that site, report the failing signals, and continue on other sites. Do not
+   automatically retry a failed item or expand the authorised scope. Stop the whole batch only if
+   the failure reveals a shared risk affecting the remaining sites or the user asks you to.
 4. Read the result. If it has an `alert` (health degraded or down) or `warning` (some items
    failed), say so first, plainly, with the failing signals. Never call that run a success. Tell
    the user to check the site and restore from backup if it is broken.
